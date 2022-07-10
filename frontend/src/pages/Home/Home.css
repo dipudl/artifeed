@@ -1,0 +1,45 @@
+.herodiv {
+    padding: 6rem 7%;
+    background-image: '../../assets/hero-image.jpg';
+    background: linear-gradient(90deg, #1C1C1C 0%, rgba(0, 0, 0, 0.7) 100%), url("../../assets/hero-image.jpg");
+}
+
+h1 {
+    font-weight: 700;
+    font-size: 4rem;
+    line-height: 104.5%;
+    color: #FFFFFF;
+}
+
+.herodiv h2{
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 1.25rem;
+    line-height: 147%;
+    color: #FFFFFF;
+    margin-top: 0.5rem;
+    margin-bottom: 2.25rem;
+}
+
+.herodiv .hero-btn{
+    padding: 0.9rem 2.5rem;
+    font-family: 'Poppins', sans-serif;
+    border-style: none;
+    color: #FFFFFF;
+    background: #FA4A0C;
+    border-radius: 3rem;
+    font-weight: 500;
+    font-size: 1.25rem;
+    cursor: pointer;
+}
+
+
+.home-content {
+    padding: 3.2rem 7%;
+}
+
+.list-title{
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+}
