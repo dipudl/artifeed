@@ -1,0 +1,23 @@
+.chip-layout{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.chip {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 0.8rem;
+    text-align: center;
+    color: #202020;
+    padding: 0.4375rem 0.85rem;
+    border-radius: 1rem;
+    background: #D9D9D9;
+    display: inline;
+    cursor: pointer;
+}
+
+.chip.active{
+    background: #FA4A0C;
+    color: #FFFFFF;
+}

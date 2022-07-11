@@ -1,0 +1,23 @@
+.search-layout{
+    display: flex;
+}
+
+.search-layout input{
+    background: #DEDEDE;
+    border-radius: 0.4375rem 0 0 0.4375rem;
+    border-width: 0px;
+    border: none;
+    outline: none;
+    padding: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    color: #202020;
+    flex: 100%;
+}
+
+.search-layout img{
+    padding: 0.65rem;
+    border-radius: 0 0.375rem 0.375rem 0;
+    background-color: #FA4A0C;
+}

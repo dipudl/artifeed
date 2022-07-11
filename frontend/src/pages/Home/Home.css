@@ -1,7 +1,9 @@
 .herodiv {
     padding: 6rem 7%;
-    background-image: '../../assets/hero-image.jpg';
     background: linear-gradient(90deg, #1C1C1C 0%, rgba(0, 0, 0, 0.7) 100%), url("../../assets/hero-image.jpg");
+    background-size: cover;
+    background-repeat:   no-repeat;
+    background-position: center center;  
 }
 
 h1 {
@@ -33,13 +35,26 @@ h1 {
     cursor: pointer;
 }
 
-
 .home-content {
-    padding: 3.2rem 7%;
+    padding: 0 7% 3.2rem;
+    display: flex;
+    column-gap: 2.5rem;
 }
 
-.list-title{
+.div-4 {
+    flex: 4;
+}
+
+.div-2 {
+    flex: 2;
+    margin: 6.4rem 0;
+}
+
+.div-2 h2{
     font-family: 'Inter', sans-serif;
-    font-weight: 700;
-    font-size: 1.6rem;
+    font-weight: 600;
+    font-size: 1rem;
+    color: #202020;
+    margin-top: 2rem;
+    margin-bottom: 1.25rem;
 }
