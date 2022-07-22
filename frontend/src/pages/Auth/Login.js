@@ -13,7 +13,7 @@ export default function Login() {
                     <h2>ARTIFEED</h2>
                 </Link>
 
-                <div class="auth-body">
+                <div className={"auth-body"}>
                     <form className="auth-form" action="/login">
                         <div className="single-input">
                             <label htmlFor="email">Email</label>

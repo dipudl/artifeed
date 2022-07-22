@@ -1,19 +1,16 @@
 const express = require('express');
 const router = express.Router();
+const pool = require('../config/dbConn');
 
 router.get('/', (req, res) => {
-    res.send("Hello World!");
-});
-
-router.get('/trending', (req, res) => {
     
 });
 
-router.get('/popular', (req, res) => {
+router.post('/', (req, res) => {
     
 });
 
-router.get('/category', (req, res) => {
+router.put('/', (req, res) => {
     
 });
 

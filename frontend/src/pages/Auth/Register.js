@@ -55,8 +55,8 @@ export default function Register() {
             );
 
             console.log(response.data);
-            console.log(response.accessToken);
-            console.log(JSON.stringify(response));
+            // console.log(response.accessToken);
+            // console.log(JSON.stringify(response));
             setSuccess(true);
         } catch(err) {
             if(!err?.response) {
@@ -80,7 +80,7 @@ export default function Register() {
                     <h2>ARTIFEED</h2>
                 </Link>
 
-                <div class="auth-body">
+                <div className={"auth-body"}>
                     <form onSubmit={handleSubmit}>
                         <div className="name-container">
                             <div className="single-input">
