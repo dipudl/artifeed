@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/dbConn');
-const { EMAIL_REGEX, COOKIE_EXPIRATION_TIME, JWT_EXPIRATION_PERIOD } = require('../utils/constants');
+const { EMAIL_REGEX, COOKIE_EXPIRATION_TIME, JWT_EXPIRATION_PERIOD, JWT_REFRESH_EXPIRATION_PERIOD } = require('../utils/constants');
 
 router.post('/', async (req, res) => {
     const data = req.body;
@@ -45,17 +45,27 @@ router.post('/', async (req, res) => {
                                 {
                                     user_id: users[0].user_id
                                 },
-                                process.env.JWT_REFRESH_KEY
+                                process.env.JWT_REFRESH_KEY,
+                                {
+                                    expiresIn: JWT_REFRESH_EXPIRATION_PERIOD
+                                }
                             );
 
-                            // creating secure cookie with refresh token
-                            res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: COOKIE_EXPIRATION_TIME });
+                            const updateRefreshTokenQuery = 'UPDATE User SET refreshToken=? WHERE user_id=?';
 
-                            res.status(200).json({
-                                success: true,
-                                accessToken: accessToken
+                            pool.query(updateRefreshTokenQuery, [refreshToken, users[0].user_id], (error, result) => {
+                                if(error) {
+                                    res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });
+                                } else {
+                                    // creating secure cookie with refresh token
+                                    res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: COOKIE_EXPIRATION_TIME });
+
+                                    res.status(200).json({
+                                        success: true,
+                                        accessToken: accessToken
+                                    });
+                                }
                             });
-
                         });
                     }
                 }

@@ -52,11 +52,12 @@ export default function Login() {
             );
 
             const accessToken = response?.data?.accessToken;
-            setAuth({ email, password, accessToken })
+            setAuth({ email, accessToken });
 
             console.log("Data: ", accessToken, response.data);
             setAuthState(0);
             
+            localStorage.setItem("persist", true);
             navigate(from, { replace: true });
         } catch(err) {
             if(!err?.response) {

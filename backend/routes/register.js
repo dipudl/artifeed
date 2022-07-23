@@ -1,9 +1,10 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Moniker = require('moniker');
 const router = express.Router();
 const pool = require('../config/dbConn');
-const { JWT_EXPIRATION_PERIOD, SALT_ROUND, COOKIE_EXPIRATION_TIME, EMAIL_REGEX } = require('../utils/constants');
+const { JWT_EXPIRATION_PERIOD, SALT_ROUND, COOKIE_EXPIRATION_TIME, EMAIL_REGEX, JWT_REFRESH_EXPIRATION_PERIOD } = require('../utils/constants');
 
 
 router.post('/', async (req, res) => {
@@ -27,6 +28,14 @@ router.post('/', async (req, res) => {
         try {
             // password encryption
             const hash = await bcrypt.hash(data.password, SALT_ROUND);
+            const generator = Moniker.generator(
+                [Moniker.adjective, Moniker.noun],
+                {
+                    maxSize: 32,
+                    encoding: 'utf-8',
+                    glue: '_'
+                }
+            );
 
             const fnCall = 'CALL RegisterUser(?, ?, ?, ?, ?, ?, @success, @user_id, @message);';
             // const insertQuery = 'INSERT INTO User(email, password, first_name, last_name, username, image_url) VALUES (?, ?, ?, ?, ?, ?)';
@@ -34,7 +43,7 @@ router.post('/', async (req, res) => {
 
             pool.query(
                 fnCall,
-                [data.email, hash, data.firstName, data.lastName, 'roaring_tiger', 'https://example.com',
+                [data.email, hash, data.firstName, data.lastName, generator.choose(), 'https://example.com',
                 '@success', '@user_id', '@message'],
                 (err, response) => {
                     if(err) {
@@ -58,15 +67,26 @@ router.post('/', async (req, res) => {
                                 {
                                     user_id: call_result.user_id
                                 },
-                                process.env.JWT_REFRESH_KEY
+                                process.env.JWT_REFRESH_KEY,
+                                {
+                                    expiresIn: JWT_REFRESH_EXPIRATION_PERIOD
+                                }
                             );
 
-                            // creating secure cookie with refresh token
-                            res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: COOKIE_EXPIRATION_TIME });
+                            const updateRefreshTokenQuery = 'UPDATE User SET refreshToken=? WHERE user_id=?';
 
-                            res.status(200).json({
-                                success: true,
-                                accessToken: accessToken
+                            pool.query(updateRefreshTokenQuery, [refreshToken, call_result.user_id], (error, result) => {
+                                if(error) {
+                                    res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });
+                                } else {
+                                    // creating secure cookie with refresh token
+                                    res.cookie('jwt', refreshToken, { httpOnly: true, secure: true, sameSite: 'None', maxAge: COOKIE_EXPIRATION_TIME });
+
+                                    res.status(200).json({
+                                        success: true,
+                                        accessToken: accessToken
+                                    });
+                                }
                             });
                         } else {
                             res.status(409).json({ message: call_result.message });

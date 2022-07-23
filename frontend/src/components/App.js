@@ -8,6 +8,7 @@ import Register from '../pages/Auth/Register';
 import Error404 from '../pages/Error404/Error404';
 import Dashboard from '../pages/Dashboard/Dashboard'
 import ProtectedRoutes from './ProtectedRoutes';
+import PersistLogin from './PersistLogin';
 
 function App() {
   return (
@@ -17,8 +18,10 @@ function App() {
         <Route path='/login' element={<Login />} />
         <Route path='/register' element={<Register />} />
         
-        <Route element={<ProtectedRoutes />}>
-          <Route path='/dashboard' element={<Dashboard />} />
+        <Route element={<PersistLogin />}>
+          <Route element={<ProtectedRoutes />}>
+            <Route path='/dashboard' element={<Dashboard />} />
+          </Route>
         </Route>
 
         <Route path="*" element={<Error404 />} />

@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 8000;
 
 app.use(credentials);
 app.use(cors(corsOptions));
-// app.use(cookieParser());
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -18,14 +18,16 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/', require('./routes/root'));
 app.use('/register', require('./routes/register'));
 app.use('/login', require('./routes/login'));
-app.use('/search', require('./routes/search'))
-app.use('/read', require('./routes/read'))
+app.use('/search', require('./routes/search'));
+app.use('/read', require('./routes/read'));
+app.use('/refresh', require('./routes/refresh'));
+app.use('/logout', require('./routes/logout'));
 
 // routes only open to registered users
 app.use(jwtVerification);
-app.use('/article', require('./routes/article'))
-app.use('/profile', require('./routes/profile'))
-app.use('/my-articles', require('./routes/myArticles'))
+app.use('/article', require('./routes/article'));
+app.use('/profile', require('./routes/profile'));
+app.use('/my-articles', require('./routes/myArticles'));
 
 app.all('*', (req, res) => {
     res.status(404);
