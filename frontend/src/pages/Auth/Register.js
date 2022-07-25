@@ -8,7 +8,7 @@ import useAuth from "../../hooks/useAuth";
 
 import axios from "../../api/axios";
 const REGISTER_URL = "/register";
-const DASHBOARD_URL = "/dashboard";
+const DASHBOARD_URL = "/article";
 
 export default function Register() {
     const { setAuth } = useAuth();

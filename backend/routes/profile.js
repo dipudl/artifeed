@@ -3,8 +3,6 @@ const router = express.Router();
 const pool = require('../config/dbConn');
 
 router.get('/', (req, res) => {
-    console.log("User id:", req.user_id);
-
     const query = 'SELECT first_name, last_name, email, username, description, image_url FROM User WHERE user_id=?';
 
     pool.query(query, req.user_id, (err, response) => {

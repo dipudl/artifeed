@@ -16,7 +16,7 @@ export default function Home() {
             <div className="herodiv">
                 <h1>A Feed for<br/>Awesome Articles</h1>
                 <h2>Write and discover your favourite articles on<br/>countless topics.</h2>
-                <Link to="/dashboard">
+                <Link to="/article">
                     <button className="hero-btn">Start writing</button>
                 </Link>
             </div>

@@ -8,7 +8,7 @@ import useAuth from "../../hooks/useAuth";
 
 import axios from "../../api/axios";
 const LOGIN_URL = "/login";
-const DASHBOARD_URL = "/dashboard";
+const DASHBOARD_URL = "/article";
 
 export default function Login() {
     const { setAuth } = useAuth();

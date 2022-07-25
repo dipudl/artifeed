@@ -43,7 +43,7 @@ router.post('/', async (req, res) => {
 
             pool.query(
                 fnCall,
-                [data.email, hash, data.firstName, data.lastName, generator.choose(), 'https://example.com',
+                [data.email, hash, data.firstName, data.lastName, generator.choose(), process.env.DEFAULT_PROFILE_PICTURE_LINK,
                 '@success', '@user_id', '@message'],
                 (err, response) => {
                     if(err) {
