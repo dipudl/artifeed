@@ -1,3 +1,9 @@
+#uploads
+uploads/*
+
+#storage bucket key
+config/serviceAccountKey.json
+
 # Logs
 logs
 *.log

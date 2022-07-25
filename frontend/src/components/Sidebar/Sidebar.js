@@ -1,10 +1,10 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import LogoDashboard from '../../assets/logo-dashboard.svg';
 import IconArticle from '../../assets/ic_article.svg';
 import IconProfile from '../../assets/ic_profile.svg';
 import IconLogout from '../../assets/ic_logout.svg';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useLogout from "../../hooks/useLogout";
 import { Outlet } from 'react-router-dom';
 
@@ -41,10 +41,10 @@ const Sidebar = () => {
         <p></p>
         <div className='sidebar-container'>
             <div className='sidebar'>
-                <div className='top-section'>
+                <Link to='/' className='top-section'>
                     <img src={LogoDashboard} alt='logo' />
                     <h1 className='sidebar-brand-text'>ARTIFEED</h1>
-                </div>
+                </Link>
 
                 <NavLink to='/profile' className={(navData) => 'sidebar-link ' + (navData.isActive? 'sidebar-tab-active': '')}>
                     <img src={IconProfile} alt='icon' />

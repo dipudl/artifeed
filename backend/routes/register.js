@@ -31,7 +31,7 @@ router.post('/', async (req, res) => {
             const generator = Moniker.generator(
                 [Moniker.adjective, Moniker.noun],
                 {
-                    maxSize: 32,
+                    maxSize: 20,
                     encoding: 'utf-8',
                     glue: '_'
                 }

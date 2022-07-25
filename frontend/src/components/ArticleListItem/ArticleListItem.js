@@ -8,7 +8,7 @@ export default function ArticleListItem() {
             <div className="details-container">
                 <div className="author-details-container">
                     {/*eslint-disable-next-line */}
-                    <img className="profile-picture" src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f" alt="profile picture" />
+                    <img className="article-list-profile-picture" src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f" alt="profile picture" />
                     <p className="author-name">Mary Williams</p>
                 </div>
 

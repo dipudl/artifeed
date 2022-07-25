@@ -1,0 +1,91 @@
+.profile-parent {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+}
+
+.profile-body {
+    flex-basis: 40%;
+}
+
+.tab-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: #202020;
+    margin-top: 2.4rem;
+    text-align: center;
+}
+
+.profile-picture-in-profile {
+    width: 6.5rem;
+    height: 6.5rem;
+    border-radius: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    border: 0.25rem solid #DEDEDE;
+}
+
+.profile-details-form {
+    margin-top: 2rem;
+}
+
+.single-input textarea{
+    background: #DEDEDE;
+    border-radius: 0.4375rem;
+    border-width: 0px;
+    border: none;
+    outline: none;
+    padding: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    color: #202020;
+    width: 100%;
+    resize: vertical;
+}
+
+button.profile-update-submit{
+    background: #FA4A0C;
+    border-radius: 0.4375rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-size: 1.2rem;
+    color: #FFFFFF;
+    border: none;
+    width: 100%;
+    padding: 0.6rem 0;
+    margin-top: 0.8rem;
+    cursor: pointer;
+    margin-bottom: 4rem;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    pointer-events: all !important;
+}
+
+.profile-image-container {
+    text-align: center;
+    position: relative;
+    margin: 3rem 0 0.25rem 0;
+}
+
+.change-profile-pic-btn {
+    background: #FA4A0C;
+    border-radius: 0 2rem 2rem;
+    border: none;
+    padding: 0.4rem 1rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 0.8rem;
+    color: #FFFFFF;
+    position: absolute;
+    bottom: 0;
+    left: 57%;
+    cursor: pointer;
+}
+
+.hide {
+    display: none;
+}

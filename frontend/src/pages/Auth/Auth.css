@@ -149,6 +149,7 @@ button:disabled {
         transform: rotate(360deg);
     }
 }
+
 .rotate {
     animation: rotating 3s linear infinite;
 }
