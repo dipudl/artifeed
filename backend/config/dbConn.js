@@ -4,8 +4,8 @@ const pool = mysql.createPool({
     connectionLimit: 100,
     host: 'localhost',
     port: 3306,
-    user: 'root',
-    password: 'toorroot',
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
     database: 'artifeed',
     debug: false
 });
