@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import LogoDashboard from '../../assets/logo-dashboard.svg';
 import IconArticle from '../../assets/ic_article.svg';
@@ -22,16 +22,16 @@ const Sidebar = () => {
             // Logout failed
 
             if(!err?.response) {
-                // 'No Server Response'
+                alert('No Server Response');
 
             } else if(err.response?.data?.message) {
-                // err.response?.data?.message
+                alert(err.response?.data?.message);
 
             } else if(err.message) {
-                // err.message
+                alert(err.message);
                 
             } else {
-                // 'Logout failed. Please try again'
+                alert('Logout failed. Please try again');
             }
         }
     }

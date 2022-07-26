@@ -2,15 +2,14 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../config/dbConn');
 
-router.get('/', (req, res) => {
+// for getting multiple articles of current user
+// can also be used for filtering articles
+router.get('/my-articles', (req, res) => {
     
 });
 
-router.post('/', (req, res) => {
-    
-});
-
-router.put('/', (req, res) => {
+// for deleting single article
+router.delete('/', (req, res) => {
     
 });
 

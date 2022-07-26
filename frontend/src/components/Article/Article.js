@@ -2,7 +2,13 @@ import React, { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const ARTICLE_URL = "/article";
+import IconNewArticle from "../../assets/ic_new_article.svg";
+import IconSearch from "../../assets/search.svg";
+import IconFilter from "../../assets/ic_filter.svg";
+
+import './Article.css';
+import MyArticle from "../MyArticle/MyArticle";
+const ARTICLE_URL = "/article/my-articles";
 
 export default function Article() {
     const [articles, setArticles] = useState();
@@ -15,7 +21,7 @@ export default function Article() {
         let isMounted = true;
         const controller = new AbortController();
 
-        const getProfileDetails = async () => {
+        const getMyArticles = async () => {
             try {
                 const response = await axiosPrivate.get(ARTICLE_URL, {
                     signal: controller.signal
@@ -43,7 +49,7 @@ export default function Article() {
             }
         }
 
-        getProfileDetails();
+        getMyArticles();
 
         return () => {
             isMounted = false;
@@ -52,14 +58,85 @@ export default function Article() {
     }, []);
 
     return (
-        <div>
-            <h1>My articles</h1>
-            { errMsg
+        <div className="my-articles-parent">
+            {/* { errMsg
                 ? <p style={{color:'black'}}>{errMsg}</p>
-                : (articles
-                    ? <p style={{color:'black'}}>{articles}</p>
-                    : <p style={{color:'black'}}>Loading...</p>)
-            }
+                : !articles
+                    ? <p style={{color:'black'}}>Loading...</p>
+                    :
+                    (
+                        
+                    )
+            }*/}
+
+            <div className="my-articles-container">
+                <h1 className="tab-title">My articles</h1>
+                <div className="buttons-container">
+                    <div className="article-action-button">
+                        <img src={IconNewArticle} />
+                        <p>New Article</p>
+                    </div>
+                    <form className="search-layout">
+                        <input
+                            type="text"
+                            name="search"
+                            id="search"
+                        />
+                        <img src={IconSearch} alt="search" />
+                    </form>
+                    <img className="article-action-button" src={IconFilter} alt="filter" />
+                </div>
+
+                <form className="filter-container">
+                    <h3>Filter articles:</h3>
+                    <select name="categories" id="categories">
+                        <option value="0">Select category</option>
+                        <option value="alkdjflsakdjfs">Programming</option>
+                        <option value="oiewurpoqwqwpo">Design</option>
+                    </select>
+                    <p className="dropdown-title">Sort by:</p>
+                    <fieldset id="sortby">
+                        <div className="single-radio-container">
+                            <input id="date-added" type="radio" value="Date added" name="sortby" checked />
+                            <label for="date-added">Date added</label>
+                        </div>
+                        <div className="single-radio-container">
+                            <input id="view-count" type="radio" value="View count" name="sortby" />
+                            <label for="view-count">View count</label>
+                        </div>
+                    </fieldset>
+
+                    <hr />
+                    
+                    <fieldset id="order">
+                        <div className="single-radio-container">
+                            <input type="radio" id="ascending" value="Ascending" name="order" checked/>
+                            <label for="ascending">Ascending</label>
+                        </div>
+                        <div className="single-radio-container">
+                            <input type="radio" id="descending" value="Descending" name="order" />
+                            <label for="descending">Descending</label>
+                        </div>
+                    </fieldset>
+                    
+                    <div className="filter-btn-container">
+                        <button className="filter-apply-btn">Apply</button>
+                        <button className="filter-cancel-btn">Cancel</button>
+                    </div>
+                </form>
+
+                <MyArticle />
+                <MyArticle />
+                <MyArticle />
+                <MyArticle />
+                <MyArticle />
+                <MyArticle />
+                <MyArticle />
+                <MyArticle />
+                <MyArticle />
+                <MyArticle />
+                <MyArticle />
+            </div>
         </div>
     );
 }
