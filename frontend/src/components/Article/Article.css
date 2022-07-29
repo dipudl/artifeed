@@ -1,7 +1,5 @@
 .my-articles-container {
-    padding-left: 5rem;
-    padding-right: 5rem;
-    padding-bottom: 5rem;
+    padding: 0 5rem 5rem;
 }
 
 .buttons-container {
@@ -19,6 +17,7 @@
     align-items: center;
     padding: 0.8rem;
     column-gap: 0.8125rem;
+    text-decoration: none;
     cursor: pointer;
 }
 
@@ -48,9 +47,11 @@
     font-family: 'Inter', sans-serif;
     font-size: 0.8rem;
     color: #202020;
+    background: none;
     padding: 0.6rem 0.8rem;
     border: 1px solid #FA4A0C;
     border-radius: 0.4375rem;
+    outline: none;
 }
 
 .dropdown-title {
@@ -59,6 +60,11 @@
     font-size: 0.8rem;
     color: #202020;
     margin-bottom: 0.6rem;
+}
+
+.filter-radio-buttons-containter {
+    display: flex;
+    column-gap: 1.5rem;
 }
 
 .filter-container label {
@@ -77,11 +83,9 @@
 
 .filter-container hr {
     border: none;
-    width: 25%;
-    height: 1px;
+    width: 1px;
     background: #9B9B9B;
-    margin-top: 0.4rem;
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.4rem;
 }
 
 fieldset#order, fieldset#sortby {
@@ -99,6 +103,7 @@ fieldset#order, fieldset#sortby {
     color: #FFFFFF;
     font-family: 'Inter', sans-serif;
     font-size: 0.8rem;
+    cursor: pointer;
 }
 
 .filter-apply-btn {

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 
 import IconNewArticle from "../../assets/ic_new_article.svg";
 import IconSearch from "../../assets/search.svg";
@@ -12,6 +12,7 @@ const ARTICLE_URL = "/article/my-articles";
 
 export default function Article() {
     const [articles, setArticles] = useState();
+    const [showFilters, setShowFilters] = useState(false);
     const [errMsg, setErrMsg] = useState();
     const axiosPrivate = useAxiosPrivate();
     const navigate = useNavigate();
@@ -57,6 +58,11 @@ export default function Article() {
         }
     }, []);
 
+    const handleFilterSubmit = (e) => {
+        e.preventDefault();
+        setShowFilters(false);
+    }
+
     return (
         <div className="my-articles-parent">
             {/* { errMsg
@@ -72,10 +78,10 @@ export default function Article() {
             <div className="my-articles-container">
                 <h1 className="tab-title">My articles</h1>
                 <div className="buttons-container">
-                    <div className="article-action-button">
+                    <Link to="/write" className="article-action-button">
                         <img src={IconNewArticle} />
                         <p>New Article</p>
-                    </div>
+                    </Link>
                     <form className="search-layout">
                         <input
                             type="text"
@@ -84,46 +90,56 @@ export default function Article() {
                         />
                         <img src={IconSearch} alt="search" />
                     </form>
-                    <img className="article-action-button" src={IconFilter} alt="filter" />
+                    <img onClick={() => setShowFilters(!showFilters)} className="article-action-button" src={IconFilter} alt="filter" />
                 </div>
 
-                <form className="filter-container">
-                    <h3>Filter articles:</h3>
-                    <select name="categories" id="categories">
-                        <option value="0">Select category</option>
-                        <option value="alkdjflsakdjfs">Programming</option>
-                        <option value="oiewurpoqwqwpo">Design</option>
-                    </select>
-                    <p className="dropdown-title">Sort by:</p>
-                    <fieldset id="sortby">
-                        <div className="single-radio-container">
-                            <input id="date-added" type="radio" value="Date added" name="sortby" checked />
-                            <label for="date-added">Date added</label>
-                        </div>
-                        <div className="single-radio-container">
-                            <input id="view-count" type="radio" value="View count" name="sortby" />
-                            <label for="view-count">View count</label>
-                        </div>
-                    </fieldset>
+                { showFilters && 
+                    (<form className="filter-container" onSubmit={handleFilterSubmit}>
+                        <h3>Filter articles:</h3>
+                        <select name="categories" id="categories">
+                            <option value="0">Select category</option>
+                            <option value="alkdjflsakdjfs">Programming</option>
+                            <option value="oiewurpoqwqwpo">Design</option>
+                        </select>
 
-                    <hr />
-                    
-                    <fieldset id="order">
-                        <div className="single-radio-container">
-                            <input type="radio" id="ascending" value="Ascending" name="order" checked/>
-                            <label for="ascending">Ascending</label>
+                        <div className="filter-radio-buttons-containter">
+                            <div>
+                                <p className="dropdown-title">Sort by:</p>
+                                <fieldset id="sortby">
+                                    <div className="single-radio-container">
+                                        <input id="date-added" type="radio" value="Date added" name="sortby" checked />
+                                        <label for="date-added">Date added</label>
+                                    </div>
+                                    <div className="single-radio-container">
+                                        <input id="view-count" type="radio" value="View count" name="sortby" />
+                                        <label for="view-count">View count</label>
+                                    </div>
+                                </fieldset>
+                            </div>
+
+                            <hr/>
+                            
+                            <div>
+                                <p className="dropdown-title">Order by:</p>
+                                <fieldset id="order">
+                                    <div className="single-radio-container">
+                                        <input type="radio" id="ascending" value="Ascending" name="order" checked/>
+                                        <label for="ascending">Ascending</label>
+                                    </div>
+                                    <div className="single-radio-container">
+                                        <input type="radio" id="descending" value="Descending" name="order" />
+                                        <label for="descending">Descending</label>
+                                    </div>
+                                </fieldset>
+                            </div>
                         </div>
-                        <div className="single-radio-container">
-                            <input type="radio" id="descending" value="Descending" name="order" />
-                            <label for="descending">Descending</label>
+                        
+                        <div className="filter-btn-container">
+                            <button className="filter-apply-btn">Apply</button>
+                            <button onClick={() => setShowFilters(false)} className="filter-cancel-btn">Cancel</button>
                         </div>
-                    </fieldset>
-                    
-                    <div className="filter-btn-container">
-                        <button className="filter-apply-btn">Apply</button>
-                        <button className="filter-cancel-btn">Cancel</button>
-                    </div>
-                </form>
+                    </form>)
+                }
 
                 <MyArticle />
                 <MyArticle />

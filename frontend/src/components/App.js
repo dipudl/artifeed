@@ -11,6 +11,7 @@ import PersistLogin from './PersistLogin';
 import Profile from './Profile/Profile';
 import Article from './Article/Article';
 import Sidebar from './Sidebar/Sidebar';
+import ArticleEditor from '../pages/ArticleEditor/ArticleEditor';
 
 function App() {
   return (
@@ -26,6 +27,8 @@ function App() {
               <Route path='/profile' element={<Profile />} />
               <Route path='/article' element={<Article />} />
             </Route>
+            
+            <Route path='/write' element={<ArticleEditor />} />
           </Route>
         </Route>
 

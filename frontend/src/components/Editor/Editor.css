@@ -1,0 +1,23 @@
+.draft-editor-container {
+    margin-bottom: 5rem;
+    border-radius: 0.4375rem;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.toolbar-style {
+    font-family: 'Inter', sans-serif;
+    border-radius: 0.4375rem 0.4375rem 0 0;
+    justify-content: center;
+    margin-bottom: 0;
+}
+
+.editor-style {
+    padding: 0.75rem 1rem;
+    border-radius: 0 0 0.4375rem 0.4375rem;
+    min-height: 60vh;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-break: 5rem;
+    line-height: 164%;
+    color: #202020;
+}

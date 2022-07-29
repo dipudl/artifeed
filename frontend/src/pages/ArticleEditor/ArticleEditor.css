@@ -1,0 +1,128 @@
+.editor-body {
+    display: flex;
+    padding: 0 7% 1rem;
+    column-gap: 1.5rem;
+}
+
+.editor-body .article-content {
+    flex-basis: 70%;
+    margin-top: 2rem;
+}
+
+.article-content h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #202020;
+}
+
+.editor-body hr {
+    border: none;
+    width: 1px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    background: #DEDEDE;/*#9B9B9B*/
+    min-height: 80vh;
+}
+
+.editor-body .single-input {
+    margin: 2rem 0 0 0;
+}
+
+.content-editor {
+    margin-top: 2rem;
+}
+
+.editor-body .article-details {
+    flex-basis: 30%;
+    margin-top: 2.75rem;
+    margin-bottom: 6rem;
+}
+
+.article-details #categories {
+    width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    color: #202020;
+    background: none;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #FA4A0C;
+    border-radius: 0.4375rem;
+    outline: none;
+}
+
+.radio-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    color: #202020;
+    margin-left: 0.4rem;
+}
+
+.editor-body .div-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    color: #202020;
+}
+
+.featured-image-selection {
+    margin-top: 2rem;
+}
+
+.feat-img-container {
+    margin-top: 0.4rem;
+    display: block;
+    width: 100%;
+    height: auto;
+    position: relative;
+    overflow: hidden;
+    padding-top: 66.67%;
+}
+
+.feat-img-container img {
+    object-fit: cover;
+    width: 100%;
+    border-radius: 0.4375rem;
+    display: block;
+    max-height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.permalink-container {
+    margin-top: 2rem;
+}
+
+#permalink-type {
+    margin-top: 0.4rem;
+    border: none;
+}
+
+.article-details button {
+    padding: 0.4rem 1rem;
+    border-radius: 0.375rem;
+    border: none;
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin-top: 0.6rem;
+}
+
+.article-details .positive-btn {
+    background: #FA4A0C;
+}
+
+.article-details .negative-btn {
+    margin-left: 0.6rem;
+    background: #787878;
+}
+
+.light-input-background {
+    background: #F9F9F9 !important;
+    border: 1px solid #E9E9E9 !important;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}

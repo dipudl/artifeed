@@ -19,6 +19,7 @@
 
 .logotext {
   color: #ffffff;
+  font-family: 'Poppins', sans-serif;
   font-weight: 700;
   font-size: 2rem;
   display: inline;
@@ -26,18 +27,24 @@
 }
 
 .navlink {
+  font-family: 'Poppins', sans-serif;
   color: #ffffff;
+  background: none;
   text-decoration: none;
   margin: 0 1rem;
   font-size: 1rem;
   font-weight: 500;
+  border: none;
+  cursor: pointer;
 }
 
 .navlink.filled {
   color: #FA4A0C;
   background-color: #ffffff;
   text-decoration: none;
-  margin: 0 1rem;
+  margin: 0 0 0 1rem;
   padding: 0.75rem 1.25rem;
   border-radius: 3rem;
+  border: none;
+  cursor: pointer;
 }
