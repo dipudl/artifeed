@@ -26,8 +26,10 @@ app.use('/logout', require('./routes/logout'));
 // routes only open to registered users
 app.use(jwtVerification);
 app.use('/image', require('./routes/imageUpload'));
+// for articles
 app.use('/article', require('./routes/article'));
 app.use('/profile', require('./routes/profile'));
+// for my articles page
 app.use('/my-articles', require('./routes/myArticles'));
 app.use('/write', require('./routes/write'));
 
