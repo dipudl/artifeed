@@ -25,9 +25,11 @@ app.use('/logout', require('./routes/logout'));
 
 // routes only open to registered users
 app.use(jwtVerification);
+app.use('/image', require('./routes/imageUpload'));
 app.use('/article', require('./routes/article'));
 app.use('/profile', require('./routes/profile'));
 app.use('/my-articles', require('./routes/myArticles'));
+app.use('/write', require('./routes/write'));
 
 app.all('*', (req, res) => {
     res.status(404);

@@ -23,12 +23,12 @@ function App() {
         
         <Route element={<PersistLogin />}>
           <Route element={<ProtectedRoutes />}>
+            <Route path='/write' element={<ArticleEditor />} />
+            
             <Route element={<Sidebar />}>
               <Route path='/profile' element={<Profile />} />
               <Route path='/article' element={<Article />} />
             </Route>
-            
-            <Route path='/write' element={<ArticleEditor />} />
           </Route>
         </Route>
 

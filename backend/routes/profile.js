@@ -106,7 +106,7 @@ router.patch('/image', (req, res) => {
 
         uploadFile(req.file, PROFILE_PIC_STORAGE_PATH)
             .then(() => {
-                const uploaded_image_url = `${process.env.FIREBASE_BASE_IMAGE_URL}${req.file.filename}?alt=media`;
+                const uploaded_image_url = `${process.env.FIREBASE_BASE_PROFILE_PIC_URL}${req.file.filename}?alt=media`;
                 const updateQuery = 'UPDATE User SET image_url=? WHERE user_id=?';
 
                 pool.query(updateQuery, [uploaded_image_url, req.user_id], (db_error, response) => {

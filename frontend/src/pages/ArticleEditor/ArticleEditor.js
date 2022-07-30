@@ -1,42 +1,276 @@
 import React, { useRef, useState, useEffect } from "react";
 import NavbarDynamic from "../../components/Navbar/NavbarDynamic";
 import "./ArticleEditor.css";
-import "react-draft-wysiwyg/dist/react-draft-wysiwyg.css"
 import Editor from "../../components/Editor/Editor";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { useLocation, useNavigate } from "react-router-dom";
+import IconError from '../../assets/ic_error.svg';
+import IconLoading from '../../assets/ic_loading.svg';
+import { convertToRaw, EditorState } from "draft-js";
+
+const CATEGORIES_URL = "/article/categories";
+const IMAGE_UPLOAD_URL = "/image/upload";
+const PERMALINK_VALIDATION_URL = "/write/validate-permalink";
+const PUBLISH_URL = "/write";
 
 export default function ArticleEditor() {
     const titleRef = useRef();
     const fileInputRef = useRef();
     const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
+    const [editorState, setEditorState] = useState(EditorState.createEmpty());
     const [permalink, setPermalink] = useState('');
     const [description, setDescription] = useState('');
+    const [defaultCategories, setDefaultCategories] = useState([]);
+    const [category, setCategory] = useState(-1);
+    const [featuredImage, setFeaturedImage] = useState();
+    // permalinkType: 0 = automatic, 1 = custom
+    const [permalinkType, setPermalinkType] = useState(0);
     // authState: 0 = normal, 1 = loading, 2 = error
     const [featImgUploadState, setFeatImgUploadState] = useState(0);
+    const [permalinkValidationState, setPermalinkValidationState] = useState(0);
+    const [errMsg, setErrMsg] = useState('');
+    const [featImgUploadErrMsg, setFeatImgUploadErrMsg] = useState('');
+    const [permalinkValidationErr, setPermalinkValidationErr] = useState('');
 
-    // set focus on title input when component loads
+    const axiosPrivate = useAxiosPrivate();
+    const navigate = useNavigate();
+    const location = useLocation();
+
     useEffect(() => {
+        // set focus on title input when component loads
         titleRef.current.focus();
+
+        let isMounted = true;
+        const controller = new AbortController();
+
+        const getCategories = async () => {
+            try {
+                const response = await axiosPrivate.get(CATEGORIES_URL, {
+                    signal: controller.signal
+                });
+
+                const data = response.data;
+                isMounted && setDefaultCategories(data.categories) && setErrMsg('');
+
+            } catch (err) {
+                console.log(err);
+
+                if(!err?.response) {
+                    setErrMsg('No Server Response');
+    
+                } else if (err.response?.status === 401) {
+                    setErrMsg('Session expired. Redirecting to login...');
+                    navigate('/login', { state: { from: location }, replace: true})
+    
+                } else if(err.response?.data?.message) {
+                    setErrMsg(err.response?.data?.message);
+    
+                } else if(err.message) {
+                    setErrMsg(err.message);
+                    
+                } else {
+                    setErrMsg('An error occurred');
+                }
+            }
+        }
+
+        getCategories();
+
+        return () => {
+            isMounted = false;
+            controller.abort();
+        }
     }, [])
 
-    const fileSelectedHandler = (e) => {
+    const onEditorStateChange = (e) => {
+        setEditorState(e);
+    }
 
+    const publishHandler = async () => {
+        if(!title) return alert("Title must not be empty");
+        if(category == -1) return alert("Please select a category");
+        if(!description) return alert("Description must not be empty");
+        if(description.length > 200) return alert("Description can only contain 200 characters at max");
+        if(permalinkType === 1 && (!permalink || permalinkValidationState === 2))
+            return alert("Permalink can only contain a-z, A-Z, 0-9, underscore and hyphen and must have 5 to 190 characters");
+        
+        const content = JSON.stringify(convertToRaw(editorState.getCurrentContent()));
+
+        try {
+            const response = await axiosPrivate.post(
+                PUBLISH_URL,
+                JSON.stringify({
+                    title, content, category, featuredImage, permalinkType, permalink, description
+                }),
+                {
+                    headers: { 'Content-Type': 'application/json'},
+                    withCredentials: true
+                }
+            );
+
+            alert("Article published successfully");
+            navigate('/article', { state: { from: location }, replace: true})
+
+        } catch(err) {
+            if(!err?.response) {
+                alert('No Server Response');
+
+            } else if (err.response?.status === 401) {
+                alert('Session expired. Please login to continue.');
+
+            } else if(err.response?.data?.message) {
+                alert(err.response?.data?.message);
+
+            } else if(err.message) {
+                alert(err.message);
+                
+            } else {
+                alert('Profile picture upload failed');
+            }
+        }
+    }
+
+    const cancelHandler = () => {
+        const dialogValue = window.confirm("The changes will be lost after you exit");
+        if(dialogValue) {
+            navigate('/article', { state: { from: location }, replace: true})
+        }
+    }
+
+    const fileSelectedHandler = async (e) => {
+        const image = e.target.files[0];
+        if(image.size > 2097152) {
+            alert('File is too large. Maximum size limit is 2MB.');
+            fileInputRef.current.value = "";
+            return;
+        }
+
+        const fileData = new FormData();
+        fileData.append('uploaded_file', image);
+        setFeatImgUploadState(1);
+
+        try {
+            const response = await axiosPrivate.post(
+                IMAGE_UPLOAD_URL,
+                fileData,
+                {
+                    headers: { 'Content-Type': 'application/json'},
+                    withCredentials: true
+                }
+            );
+
+            setFeaturedImage(response.data.image_url);
+            setFeatImgUploadState(0);
+
+        } catch(err) {
+            if(!err?.response) {
+                setFeatImgUploadErrMsg('No Server Response');
+
+            } else if (err.response?.status === 401) {
+                setFeatImgUploadErrMsg('Session expired. Redirecting to login...');
+                navigate('/login', { state: { from: location }, replace: true})
+
+            } else if(err.response?.data?.message) {
+                setFeatImgUploadErrMsg(err.response?.data?.message);
+
+            } else if(err.message) {
+                setFeatImgUploadErrMsg(err.message);
+                
+            } else {
+                setFeatImgUploadErrMsg('Profile picture upload failed');
+            }
+
+            setFeatImgUploadState(2);
+        } finally {
+            fileInputRef.current.value = "";
+        }
+    }
+
+    const handlePermalinkTypeChange = (e) => {
+        setPermalinkType(parseInt(e.target.value));
+    }
+
+    const handlePermalinkChange = (e) => {
+        const value = e.target.value;
+        if(!value || value.length < 5) {
+            setPermalinkValidationErr('Permalink must contain 5 or more characters')
+            setPermalinkValidationState(2);
+
+        } else if(value.length > 190) {
+            setPermalinkValidationErr('Permalink can only contain 190 characters at max')
+            setPermalinkValidationState(2);
+
+        } else if(!value.match(/^[A-Za-z0-9_-]{5,190}$/)) {
+            setPermalinkValidationErr('Permalink can only contain a-z, A-Z, 0-9, underscore and hyphen and must have at least 5 characters')
+            setPermalinkValidationState(2);
+        } else {
+            setPermalinkValidationState(permalinkValidationState === 1? 1: 0);
+        }
+
+        setPermalink(e.target.value);
+    }
+
+    const handlePermalinkApply = async () => {
+        if(!permalink || permalink.length < 5) {
+            setPermalinkValidationErr('Permalink must contain 5 or more characters')
+            setPermalinkValidationState(2);
+
+        } else if(permalink.length > 190) {
+            setPermalinkValidationErr('Permalink can only contain 190 characters at max')
+            setPermalinkValidationState(2);
+
+        } else if(!permalink.match(/^[A-Za-z0-9_\-]{5,190}$/)) {
+            setPermalinkValidationErr('Permalink can only contain a-z, A-Z, 0-9, underscore and hyphen and must have at least 5 characters')
+            setPermalinkValidationState(2);
+
+        } else {
+            setPermalinkValidationState(1);
+
+            try {
+                const response = await axiosPrivate.post(
+                    PERMALINK_VALIDATION_URL,
+                    JSON.stringify({ permalink }),
+                    {
+                        headers: { 'Content-Type': 'application/json'},
+                        withCredentials: true
+                    }
+                );
+    
+                setPermalinkValidationState(0);
+    
+            } catch(err) {
+                if(!err?.response) {
+                    setPermalinkValidationErr('No Server Response');
+    
+                } else if (err.response?.status === 401) {
+                    setPermalinkValidationErr('Session expired. Please login to continue.');
+    
+                } else if(err.response?.data?.message) {
+                    setPermalinkValidationErr(err.response?.data?.message);
+    
+                } else if(err.message) {
+                    setPermalinkValidationErr(err.message);
+                    
+                } else {
+                    setPermalinkValidationErr('Profile update failed');
+                }
+    
+                setPermalinkValidationState(2);
+            }
+        }
     }
 
     return (
-        <div>
+        defaultCategories &&
+        (<div>
             <NavbarDynamic data={{
                 buttonUnfilled: {
                     label: 'Cancel',
-                    callback: () => {
-                        console.log("Unfilled");
-                    }
+                    callback: cancelHandler
                 },
                 buttonFilled: {
                     label: 'Publish',
-                    callback: () => {
-                        console.log("Filled");
-                    }
+                    callback: publishHandler
                 }
             }} />
 
@@ -58,22 +292,36 @@ export default function ArticleEditor() {
                     </div>
                     <div className="content-editor">
                         <p className="div-title">Content</p>
-                        <Editor styles={{marginTop: '0.4rem'}} />
+                        <Editor
+                            styles={{marginTop: '0.4rem'}}
+                            editorState={editorState}
+                            onEditorStateChange={onEditorStateChange}
+                        />
                     </div>
                 </div>
                 <hr/>
                 <div className="article-details">
-                    <select name="categories" id="categories">
-                        <option value="0">Select category</option>
-                        <option value="alkdjflsakdjfs">Programming</option>
-                        <option value="oiewurpoqwqwpo">Design</option>
+                    <select name="categories" id="categories" onChange={(e) => setCategory(parseInt(e.target.value))}>
+                        <option value={-1}>Select category</option>
+                        {
+                            defaultCategories.map(category => (
+                                <option
+                                    key={category.category_id}
+                                    value={category.category_id}>
+                                    {category.name}
+                                </option>   
+                            ))
+                        }
                     </select>
 
                     <div className="featured-image-selection">
                         <p className="div-title">Featured image</p>
-                        <div className="feat-img-container">
-                            <img src="https://images.unsplash.com/photo-1493612276216-ee3925520721" alt="featured" />
-                        </div>
+
+                        {featuredImage &&
+                            <div className="feat-img-container">
+                                <img src={featuredImage} alt="featured" />
+                            </div>
+                        }
                         <input
                             style={{display: 'none'}}
                             type="file"
@@ -81,56 +329,106 @@ export default function ArticleEditor() {
                             onChange={fileSelectedHandler}
                             ref={fileInputRef}
                         />
+                        {{
+                            1:
+                            <div className={"auth-info info-color small-margin-top"}>
+                                <img className="rotate" src={IconLoading} alt="icon" />
+                                <p className="auth-info-text">Uploading...</p>
+                            </div>,
+                            2:
+                            <div className={"auth-info error-color small-margin-top"}>
+                                <img src={IconError} alt="icon" />
+                                <p className="auth-info-text">{featImgUploadErrMsg}</p>
+                            </div>
+                        }[featImgUploadState]}
+
                         <button
                             onClick={() => fileInputRef.current.click()}
                             className="positive-btn"
                             disabled={featImgUploadState === 1}>
-                            {/* {picUploadState === 1? picUploadProgress + '%': 'Change'} */}
-                            Change
+                            {featuredImage? 'Change': 'Upload'}
                         </button>
+
+                        {featuredImage &&
                         <button
-                            className="negative-btn">
+                            className="negative-btn"
+                            onClick={() => setFeaturedImage()}
+                            disabled={featImgUploadState === 1}>
                             Remove
                         </button>
+                        }
                     </div>
 
                     <div className="permalink-container">
                         <p className="div-title">Permalink</p>
                         <fieldset id="permalink-type">
                             <div className="single-radio-container">
-                                <input type="radio" id="automatic" value="Automatic" name="permalink-type" checked/>
+                                <input
+                                    type="radio"
+                                    id="automatic"
+                                    value={0}
+                                    name="permalink-type"
+                                    onChange={handlePermalinkTypeChange}
+                                    checked={permalinkType === 0}
+                                />
                                 <label className="radio-label" htmlFor="automatic">Automatic</label>
                             </div>
                             <div className="single-radio-container">
-                                <input type="radio" id="custom" value="Custom" name="permalink-type" />
+                                <input
+                                    type="radio"
+                                    id="custom"
+                                    value={1}
+                                    name="permalink-type"
+                                    onChange={handlePermalinkTypeChange}
+                                    checked={permalinkType === 1}
+                                />
                                 <label className="radio-label" htmlFor="custom">Custom</label>
                             </div>
                         </fieldset>
-                        <input
-                            className="default-input-style"
-                            name="content"
-                            type="text"
-                            id="content"
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            required
-                        />
-                        <button className="positive-btn">Apply</button>
+
+                        { permalinkType === 1 &&
+                        <div>
+                            <input
+                                className="default-input-style"
+                                name="permalink"
+                                type="text"
+                                id="permalink"
+                                value={permalink}
+                                onChange={handlePermalinkChange}
+                                required
+                            />
+                            {{
+                                1:
+                                <div className={"auth-info info-color small-margin-top"}>
+                                    <img className="rotate" src={IconLoading} alt="icon" />
+                                    <p className="auth-info-text">Validating...</p>
+                                </div>,
+                                2:
+                                <div className={"auth-info error-color small-margin-top"}>
+                                    <img src={IconError} alt="icon" />
+                                    <p className="auth-info-text">{permalinkValidationErr}</p>
+                                </div>
+                            }[permalinkValidationState]}
+                            <button onClick={handlePermalinkApply} className="positive-btn">Apply</button>
+                        </div>
+                        }
                     </div>
 
                     <div className="single-input">
                         <label htmlFor="description">Description</label>
-                        <input
+                        <textarea
                             name="description"
                             type="text"
                             id="description"
                             value={description}
+                            maxLength="200"
+                            rows={4}
                             onChange={(e) => setDescription(e.target.value)}
                             required
                         />
                     </div>
                 </div>
             </div>
-        </div>
+        </div>)
     );
 }

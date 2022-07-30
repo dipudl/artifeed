@@ -21,3 +21,17 @@
     line-height: 164%;
     color: #202020;
 }
+
+.rdw-image-modal-upload-option-label {
+    overflow: scroll;
+    justify-content: left;
+}
+
+.rdw-image-imagewrapper img {
+    max-width: 100%;
+    max-height: 200vh;
+}
+
+.public-DraftStyleDefault-block.public-DraftStyleDefault-ltr span {
+    word-break: break-all;
+}
