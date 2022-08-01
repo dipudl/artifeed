@@ -6,12 +6,14 @@ import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { useLocation, useNavigate } from "react-router-dom";
 import IconError from '../../assets/ic_error.svg';
 import IconLoading from '../../assets/ic_loading.svg';
-import { convertToRaw, EditorState } from "draft-js";
+import { convertFromRaw, convertToRaw, EditorState } from "draft-js";
 
 const CATEGORIES_URL = "/article/categories";
 const IMAGE_UPLOAD_URL = "/image/upload";
 const PERMALINK_VALIDATION_URL = "/write/validate-permalink";
 const PUBLISH_URL = "/write";
+const EDIT_URL = "/write/edit";
+const ARTICLE_URL = "/write?article=";
 
 export default function ArticleEditor() {
     const titleRef = useRef();
@@ -20,14 +22,17 @@ export default function ArticleEditor() {
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
     const [permalink, setPermalink] = useState('');
     const [description, setDescription] = useState('');
-    const [defaultCategories, setDefaultCategories] = useState([]);
+    const [defaultCategories, setDefaultCategories] = useState();
     const [category, setCategory] = useState(-1);
     const [featuredImage, setFeaturedImage] = useState();
+    // for editing purpose
+    const [originalPermalink, setOriginalPermalink] = useState('');
     // permalinkType: 0 = automatic, 1 = custom
     const [permalinkType, setPermalinkType] = useState(0);
     // authState: 0 = normal, 1 = loading, 2 = error
     const [featImgUploadState, setFeatImgUploadState] = useState(0);
     const [permalinkValidationState, setPermalinkValidationState] = useState(0);
+    const [articlePublishState, setArticlePublishState] = useState(0);
     const [errMsg, setErrMsg] = useState('');
     const [featImgUploadErrMsg, setFeatImgUploadErrMsg] = useState('');
     const [permalinkValidationErr, setPermalinkValidationErr] = useState('');
@@ -35,13 +40,67 @@ export default function ArticleEditor() {
     const axiosPrivate = useAxiosPrivate();
     const navigate = useNavigate();
     const location = useLocation();
+    const articleId = parseInt(new URLSearchParams(window.location.search).get("article"));
 
     useEffect(() => {
         // set focus on title input when component loads
-        titleRef.current.focus();
+        if(titleRef.current) titleRef.current.focus();
+    }, [defaultCategories])
 
+    useEffect(() => {
         let isMounted = true;
         const controller = new AbortController();
+
+        const getArticle = async () => {
+            try {
+                const response = await axiosPrivate.get(`${ARTICLE_URL}${articleId}`, {
+                    signal: controller.signal
+                });
+
+                const data = response.data;
+                if(isMounted) {
+                    setDefaultCategories(data.categories);
+                    setTitle(data.title);
+                    setFeaturedImage(data.featured_image);
+                    setCategory(data.category_id);
+                    setPermalink(data.permalink);
+                    setOriginalPermalink(data.permalink);
+                    setDescription(data.description);
+                    setEditorState(EditorState.createWithContent(
+                        convertFromRaw(JSON.parse(data.content))
+                    ));
+                    setErrMsg('');
+
+                    // show confirm dialog before closing/reloading this page
+                    window.addEventListener("beforeunload", alertUserBeforeClosing);
+                }
+
+            } catch (err) {
+                console.log(err);
+
+                if(!err?.response) {
+                    setErrMsg('No Server Response');
+    
+                } else if (err.response?.status === 401) {
+                    setErrMsg('Session expired. Redirecting to login...');
+                    navigate('/login', { state: { from: location }, replace: true})
+    
+                } else if (err.response?.status === 404) {
+                    setErrMsg(err.response?.data?.message
+                        || "The requested article does not exist or you are not authorized.");
+                    navigate('/article', { state: { from: location }, replace: true})
+    
+                } else if(err.response?.data?.message) {
+                    setErrMsg(err.response?.data?.message);
+    
+                } else if(err.message) {
+                    setErrMsg(err.message);
+                    
+                } else {
+                    setErrMsg('An error occurred');
+                }
+            }
+        }
 
         const getCategories = async () => {
             try {
@@ -50,7 +109,13 @@ export default function ArticleEditor() {
                 });
 
                 const data = response.data;
-                isMounted && setDefaultCategories(data.categories) && setErrMsg('');
+                if(isMounted) {
+                    setDefaultCategories(data.categories);
+                    setErrMsg('');
+                }
+
+                // show confirm dialog before closing/reloading this page
+                window.addEventListener("beforeunload", alertUserBeforeClosing);
 
             } catch (err) {
                 console.log(err);
@@ -74,33 +139,47 @@ export default function ArticleEditor() {
             }
         }
 
-        getCategories();
+        if(articleId)
+            getArticle();
+        else
+            getCategories();
 
         return () => {
             isMounted = false;
             controller.abort();
+            window.removeEventListener('beforeunload', alertUserBeforeClosing);
         }
     }, [])
+
+    const alertUserBeforeClosing = e => {
+        e.preventDefault()
+        e.returnValue = 'Are you sure you want to close?';
+    }
 
     const onEditorStateChange = (e) => {
         setEditorState(e);
     }
 
     const publishHandler = async () => {
-        if(!title) return alert("Title must not be empty");
-        if(category == -1) return alert("Please select a category");
+        if(!title || !title.trim()) return alert("Title must not be empty");
+        if(category <= 0) return alert("Please select a category");
         if(!description) return alert("Description must not be empty");
         if(description.length > 200) return alert("Description can only contain 200 characters at max");
         if(permalinkType === 1 && (!permalink || permalinkValidationState === 2))
-            return alert("Permalink can only contain a-z, A-Z, 0-9, underscore and hyphen and must have 5 to 190 characters");
+            return alert("Permalink can only contain a-z, A-Z, 0-9, underscore and hyphen and must have 5 to 180 characters");
         
         const content = JSON.stringify(convertToRaw(editorState.getCurrentContent()));
+        const isPermalinkChanged = originalPermalink && (permalink !== originalPermalink);
 
         try {
+            setArticlePublishState(1);
+
             const response = await axiosPrivate.post(
-                PUBLISH_URL,
+                articleId? EDIT_URL : PUBLISH_URL,
                 JSON.stringify({
-                    title, content, category, featuredImage, permalinkType, permalink, description
+                    articleId, title, content, category, featuredImage, 
+                    permalinkType: isPermalinkChanged? 1: 0, 
+                    permalink, description
                 }),
                 {
                     headers: { 'Content-Type': 'application/json'},
@@ -108,7 +187,8 @@ export default function ArticleEditor() {
                 }
             );
 
-            alert("Article published successfully");
+            alert(`Article ${articleId? 'updated' : 'published'} successfully`);
+            setArticlePublishState(0);
             navigate('/article', { state: { from: location }, replace: true})
 
         } catch(err) {
@@ -127,6 +207,8 @@ export default function ArticleEditor() {
             } else {
                 alert('Profile picture upload failed');
             }
+
+            setArticlePublishState(2);
         }
     }
 
@@ -196,11 +278,11 @@ export default function ArticleEditor() {
             setPermalinkValidationErr('Permalink must contain 5 or more characters')
             setPermalinkValidationState(2);
 
-        } else if(value.length > 190) {
-            setPermalinkValidationErr('Permalink can only contain 190 characters at max')
+        } else if(value.length > 180) {
+            setPermalinkValidationErr('Permalink can only contain 180 characters at max')
             setPermalinkValidationState(2);
 
-        } else if(!value.match(/^[A-Za-z0-9_-]{5,190}$/)) {
+        } else if(!value.match(/^[A-Za-z0-9_-]{5,180}$/)) {
             setPermalinkValidationErr('Permalink can only contain a-z, A-Z, 0-9, underscore and hyphen and must have at least 5 characters')
             setPermalinkValidationState(2);
         } else {
@@ -211,15 +293,18 @@ export default function ArticleEditor() {
     }
 
     const handlePermalinkApply = async () => {
+        if(originalPermalink && (permalink === originalPermalink))
+            return;
+
         if(!permalink || permalink.length < 5) {
             setPermalinkValidationErr('Permalink must contain 5 or more characters')
             setPermalinkValidationState(2);
 
-        } else if(permalink.length > 190) {
-            setPermalinkValidationErr('Permalink can only contain 190 characters at max')
+        } else if(permalink.length > 180) {
+            setPermalinkValidationErr('Permalink can only contain 180 characters at max')
             setPermalinkValidationState(2);
 
-        } else if(!permalink.match(/^[A-Za-z0-9_\-]{5,190}$/)) {
+        } else if(!permalink.match(/^[A-Za-z0-9_\-]{5,180}$/)) {
             setPermalinkValidationErr('Permalink can only contain a-z, A-Z, 0-9, underscore and hyphen and must have at least 5 characters')
             setPermalinkValidationState(2);
 
@@ -261,15 +346,20 @@ export default function ArticleEditor() {
     }
 
     return (
+        errMsg?
+        <h3 style={{color: 'black'}}>{errMsg}</h3>
+        :
         defaultCategories &&
         (<div>
             <NavbarDynamic data={{
                 buttonUnfilled: {
                     label: 'Cancel',
+                    disabled: articlePublishState === 1,
                     callback: cancelHandler
                 },
                 buttonFilled: {
-                    label: 'Publish',
+                    label: articleId? 'Update' : 'Publish',
+                    disabled: articlePublishState === 1,
                     callback: publishHandler
                 }
             }} />
@@ -301,7 +391,12 @@ export default function ArticleEditor() {
                 </div>
                 <hr/>
                 <div className="article-details">
-                    <select name="categories" id="categories" onChange={(e) => setCategory(parseInt(e.target.value))}>
+                    <select
+                        name="categories"
+                        id="categories"
+                        value={category}
+                        onChange={(e) => setCategory(parseInt(e.target.value))}
+                    >
                         <option value={-1}>Select category</option>
                         {
                             defaultCategories.map(category => (

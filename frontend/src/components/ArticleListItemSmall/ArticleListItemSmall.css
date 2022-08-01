@@ -1,0 +1,35 @@
+.author-recommended {
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 0.4375rem;
+    border: 1px solid #FA4A0C;
+    text-decoration: none;
+    column-gap: 0.8rem;
+}
+
+.author-recommended img {
+    border-radius: 0.4375rem;
+    width: 3.6rem;
+    height: 3.6rem;
+    flex-grow: 0;
+    flex-shrink: 0;
+    object-fit: cover;
+}
+
+.author-recommended p {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: #202020;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-clamp: 3;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+}

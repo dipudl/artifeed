@@ -11,7 +11,7 @@ const REGISTER_URL = "/register";
 const DASHBOARD_URL = "/article";
 
 export default function Register() {
-    const { setAuth } = useAuth();
+    const { auth, setAuth } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.form?.pathname || DASHBOARD_URL;
@@ -61,12 +61,10 @@ export default function Register() {
             );
 
             const accessToken = response?.data?.accessToken;
+            localStorage.setItem("persist", true);
             setAuth({ email, accessToken })
-
-            console.log("Data: ", accessToken, response.data);
             setAuthState(0);
             
-            localStorage.setItem("persist", true);
             navigate(from, { replace: true });
         } catch(err) {
             if(!err?.response) {
@@ -90,7 +88,10 @@ export default function Register() {
     }
 
     return (
-        <div className="auth-background">
+        auth?.accessToken
+        ? navigate(from, { replace: true })
+        : 
+        (<div className="auth-background">
             <section className="container">
 
                 <Link className="brand-container" to="/">
@@ -168,6 +169,6 @@ export default function Register() {
                     <p className="alt-auth-info">Already a member? <Link className="auth-link" to="/login">Login</Link></p>
                 </div>
             </section>
-        </div>
+        </div>)
     );
 }

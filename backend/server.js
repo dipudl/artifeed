@@ -33,6 +33,7 @@ app.use('/profile', require('./routes/profile'));
 app.use('/my-articles', require('./routes/myArticles'));
 app.use('/write', require('./routes/write'));
 
+
 app.all('*', (req, res) => {
     res.status(404);
     res.json({ "error": "404 Not Found" });

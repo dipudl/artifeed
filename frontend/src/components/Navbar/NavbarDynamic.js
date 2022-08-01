@@ -13,12 +13,16 @@ function Navbar({data}) {
             <div className="navlink-container">
             <button
                 onClick={() => data.buttonUnfilled.callback()}
-                className={"navlink"}>
+                className={"navlink"}
+                disabled={data.buttonUnfilled.disabled}
+            >
                 {data.buttonUnfilled.label}
             </button>
             <button
                 onClick={() => data.buttonFilled.callback()}
-                className={"navlink filled"}>
+                className={"navlink filled"}
+                disabled={data.buttonFilled.disabled}
+            >
                 {data.buttonFilled.label}
             </button>
             </div>

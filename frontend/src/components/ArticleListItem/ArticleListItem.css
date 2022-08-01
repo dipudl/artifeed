@@ -5,6 +5,7 @@
     display: flex;
     margin-bottom: 1.6rem;
     column-gap: 1.25rem;
+    text-decoration: none;
 }
 
 .featured-image {

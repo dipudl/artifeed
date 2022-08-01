@@ -5,13 +5,17 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import IconNewArticle from "../../assets/ic_new_article.svg";
 import IconSearch from "../../assets/search.svg";
 import IconFilter from "../../assets/ic_filter.svg";
+import IconError from '../../assets/ic_error.svg';
+import IconLoading from '../../assets/ic_loading.svg';
 
 import './Article.css';
 import MyArticle from "../MyArticle/MyArticle";
-const ARTICLE_URL = "/article/my-articles";
+const ARTICLE_URL = "/my-articles";
 
 export default function Article() {
-    const [articles, setArticles] = useState();
+    const [articles, setArticles] = useState([]);
+    // articleState: 0 = normal, 1 = loading, 2 = error, 3 = empty
+    const [articlesState, setArticlesState] = useState(0);
     const [showFilters, setShowFilters] = useState(false);
     const [errMsg, setErrMsg] = useState();
     const axiosPrivate = useAxiosPrivate();
@@ -23,11 +27,17 @@ export default function Article() {
         const controller = new AbortController();
 
         const getMyArticles = async () => {
+            setArticlesState(1);
             try {
                 const response = await axiosPrivate.get(ARTICLE_URL, {
                     signal: controller.signal
                 });
-                isMounted && setArticles(response.data) && setErrMsg('');
+
+                response.data.data === [] ? setArticlesState(3): setArticlesState(0);
+                if(isMounted) {
+                    setArticles(response.data.data);
+                    setErrMsg('');
+                }
             } catch (err) {
                 console.log(err);
 
@@ -47,6 +57,8 @@ export default function Article() {
                 } else {
                     setErrMsg('An error occurred');
                 }
+
+                setArticlesState(2);
             }
         }
 
@@ -63,18 +75,15 @@ export default function Article() {
         setShowFilters(false);
     }
 
+    const articleDeleteCallback = (articleId) => {
+        const filteredArticles = articles.filter(
+            (article) => article.article_id !== articleId
+        );
+        setArticles(filteredArticles);
+    }
+
     return (
         <div className="my-articles-parent">
-            {/* { errMsg
-                ? <p style={{color:'black'}}>{errMsg}</p>
-                : !articles
-                    ? <p style={{color:'black'}}>Loading...</p>
-                    :
-                    (
-                        
-                    )
-            }*/}
-
             <div className="my-articles-container">
                 <h1 className="tab-title">My articles</h1>
                 <div className="buttons-container">
@@ -141,17 +150,31 @@ export default function Article() {
                     </form>)
                 }
 
-                <MyArticle />
-                <MyArticle />
-                <MyArticle />
-                <MyArticle />
-                <MyArticle />
-                <MyArticle />
-                <MyArticle />
-                <MyArticle />
-                <MyArticle />
-                <MyArticle />
-                <MyArticle />
+                {{
+                    0:
+                    articles.map(article => (
+                        <MyArticle
+                            key={article.article_id}
+                            data={article}
+                            articleDeleteCallback={articleDeleteCallback}
+                        />
+                    )),
+                    1:
+                    <div className={"auth-info info-color"}>
+                        <img className="rotate" src={IconLoading} alt="icon" />
+                        <p className="auth-info-text">Loading...</p>
+                    </div>,
+                    2:
+                    <div className={"auth-info error-color"}>
+                        <img src={IconError} alt="icon" />
+                        <p className="auth-info-text">{errMsg}</p>
+                    </div>,
+                    3:
+                    <div className={"auth-info info-color"}>
+                        <img src={IconLoading} alt="icon" />
+                        <p className="auth-info-text">No articles published</p>
+                    </div>
+                }[articlesState]}
             </div>
         </div>
     );

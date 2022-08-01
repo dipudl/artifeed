@@ -11,7 +11,7 @@ const LOGIN_URL = "/login";
 const DASHBOARD_URL = "/article";
 
 export default function Login() {
-    const { setAuth } = useAuth();
+    const { auth, setAuth } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const from = location.state?.form?.pathname || DASHBOARD_URL;
@@ -52,12 +52,10 @@ export default function Login() {
             );
 
             const accessToken = response?.data?.accessToken;
+            localStorage.setItem("persist", true);
             setAuth({ email, accessToken });
-
-            console.log("Data: ", accessToken, response.data);
             setAuthState(0);
             
-            localStorage.setItem("persist", true);
             navigate(from, { replace: true });
         } catch(err) {
             if(!err?.response) {
@@ -78,7 +76,10 @@ export default function Login() {
     }
 
     return (
-        <div className="auth-background">
+        auth?.accessToken
+        ? navigate(from, { replace: true })
+        :
+        (<div className="auth-background">
             <section className="container">
 
                 <Link className="brand-container" to="/">
@@ -133,6 +134,6 @@ export default function Login() {
                     <p className="alt-auth-info">Not a member? <Link className="auth-link" to="/register">Sign up now</Link></p>
                 </div>    
             </section>
-        </div>
+        </div>)
     );
 }

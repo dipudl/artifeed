@@ -4,7 +4,7 @@ import useAuth from "../hooks/useAuth";
 const ProtectedRoutes = () => {
     const { auth } = useAuth();
     const location = useLocation();
-
+    
     return (
             auth?.accessToken
                 ? <Outlet />

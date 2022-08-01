@@ -25,6 +25,7 @@
     margin-right: auto;
     border: 0.25rem solid #DEDEDE;
     object-fit: cover;
+    display: block;
 }
 
 .profile-details-form {
@@ -62,7 +63,7 @@ button.profile-update-submit{
 }
 
 button:disabled {
-    cursor: not-allowed;
+    cursor: not-allowed !important;
     pointer-events: all !important;
 }
 

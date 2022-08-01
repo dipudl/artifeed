@@ -12,16 +12,18 @@ import Profile from './Profile/Profile';
 import Article from './Article/Article';
 import Sidebar from './Sidebar/Sidebar';
 import ArticleEditor from '../pages/ArticleEditor/ArticleEditor';
+import Read from '../pages/Read/Read';
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path='/' element={<Home />} exact/>
-        <Route path='/login' element={<Login />} />
-        <Route path='/register' element={<Register />} />
-        
+      <Routes>        
         <Route element={<PersistLogin />}>
+          <Route path='/' element={<Home />} exact/>
+          <Route path='/login' element={<Login />} />
+          <Route path='/register' element={<Register />} />
+          <Route path='/read/:permalink' element={<Read />} />
+
           <Route element={<ProtectedRoutes />}>
             <Route path='/write' element={<ArticleEditor />} />
             

@@ -44,7 +44,10 @@ export default function Profile() {
                 });
 
                 const data = response.data;
-                isMounted && setProfileDetails(data) && setErrMsg('');
+                if(isMounted) {
+                    setProfileDetails(data)
+                    setErrMsg('');
+                }
 
                 setProfilePicUrl(data.image_url);
                 setFirstName(data.first_name);

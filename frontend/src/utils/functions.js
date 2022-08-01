@@ -6,4 +6,11 @@ const noImageCache = (image_url) => {
     return image_url;
 }
 
-module.exports = { noImageCache };
+function formatDate(isoDate) {
+    const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
+    let fDate = new Date(isoDate);
+    const date = `${month[fDate.getMonth()]} ${fDate.getDate()}, ${fDate.getFullYear()}`;
+    return date;
+}
+
+module.exports = { noImageCache, formatDate };

@@ -23,7 +23,6 @@ router.post('/upload', (req, res) => {
         uploadFile(req.file, IMAGE_STORAGE_PATH)
             .then(() => {
                 const uploaded_image_url = `${process.env.FIREBASE_BASE_IMAGE_URL}${req.file.filename}?alt=media`;
-                console.log(uploaded_image_url);
                 res.status(200).json({'image_url': uploaded_image_url});
             })
             .catch((error) => {
