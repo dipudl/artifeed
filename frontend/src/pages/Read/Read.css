@@ -36,6 +36,7 @@
     font-size: 1.6rem;
     color: #202020;
     margin-top: 3rem;
+    margin-bottom: 1rem;
 }
 
 .read-like-container {
@@ -46,6 +47,7 @@
     border-radius: 0.4375rem;
     border: 1px solid #FA4A0C;
     cursor: pointer;
+    margin-top: 1rem;
 }
 
 .read-like-container p {
@@ -111,4 +113,19 @@
 .author-recommended-container {
     margin-top: 2rem;
     margin-bottom: 3.2rem;
+}
+
+.hidden {
+    display: none;
+}
+
+.editor-style-readonly {
+    padding: 0;
+    border-radius: 0;
+    margin-top: 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-break: 5rem;
+    line-height: 164%;
+    color: #202020;
 }

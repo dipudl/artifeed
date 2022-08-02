@@ -8,7 +8,7 @@ import IconError from '../../assets/ic_error.svg';
 import IconLoading from '../../assets/ic_loading.svg';
 import { convertFromRaw, convertToRaw, EditorState } from "draft-js";
 
-const CATEGORIES_URL = "/article/categories";
+const CATEGORIES_URL = "/home/categories";
 const IMAGE_UPLOAD_URL = "/image/upload";
 const PERMALINK_VALIDATION_URL = "/write/validate-permalink";
 const PUBLISH_URL = "/write";

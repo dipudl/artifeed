@@ -1,4 +1,4 @@
-import { convertFromRaw, Editor, EditorState } from "draft-js";
+import { convertFromRaw, EditorState } from "draft-js";
 import React, { useState } from "react";
 import jwt from 'jwt-decode';
 import Footer from "../../components/Footer";
@@ -17,10 +17,12 @@ import axios from "../../api/axios";
 import ArticleListItemSmall from "../../components/ArticleListItemSmall/ArticleListItemSmall";
 import useAuth from "../../hooks/useAuth";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import { Editor } from "react-draft-wysiwyg";
+import Search from "../../components/Search/Search";
 
 const ARTICLE_CONTENT_URL = "/read?article=";
 const AUTHOR_ARTICLES_URL = "/read/author-articles";
-const RECOMMENDED_ARTICLES_URL = "/read/recommended-articles?article-id=";
+const RECOMMENDED_ARTICLES_URL = "/read/recommended-articles";
 const LIKE_URL = "/article/like";
 
 export default function Read() {
@@ -41,9 +43,15 @@ export default function Read() {
     const [recommendedArticlesLoadState, setRecommendedArticlesLoadState] = useState(0);
     const [authorArticlesLoadState, setAuthorArticlesLoadState] = useState(0);
 
-    const { permalink } = useParams();
-    const userId = jwt(auth?.accessToken)?.user_id;
     const axiosPrivate = useAxiosPrivate();
+    const params = useParams();
+
+    let userId;
+    try {
+        userId = jwt(auth?.accessToken)?.user_id;
+    } catch(err) {
+        // console.log(err);
+    }
 
     useEffect(() => {
         if(articleContent) {
@@ -58,9 +66,9 @@ export default function Read() {
         let articleUrl;
 
         if(auth?.accessToken) {
-            articleUrl = `${ARTICLE_CONTENT_URL}${permalink}&user-id=${userId}`;
+            articleUrl = `${ARTICLE_CONTENT_URL}${params.permalink}&user-id=${userId}`;
         } else {
-            articleUrl = `${ARTICLE_CONTENT_URL}${permalink}`;
+            articleUrl = `${ARTICLE_CONTENT_URL}${params.permalink}`;
         }
 
         const getArticleDetails = async () => {
@@ -70,13 +78,13 @@ export default function Read() {
                 });
 
                 const data = response.data;
-                console.log(data);
+
                 if(isMounted) {
                     setArticleContent(data);
                     setEditorState(EditorState.createWithContent(
                         convertFromRaw(JSON.parse(data.content))
                     ))
-                    console.log(data);
+
                     setLiked(data.liked);
                     setErrMsg('');
                 }
@@ -108,7 +116,7 @@ export default function Read() {
             isMounted = false;
             controller.abort();
         }
-    }, []);
+    }, [params]);
 
     const getAuthorArticles = async () => {
         setAuthorArticlesLoadState(1);
@@ -121,7 +129,9 @@ export default function Read() {
             const data = response.data;
             setAuthorArticles(data.articles);
             setAuthorArticleErrMsg('');
-            setAuthorArticlesLoadState(0);
+            data.articles.length === 0
+                ? setAuthorArticlesLoadState(3)
+                : setAuthorArticlesLoadState(0);
 
         } catch (err) {
             console.log(err);
@@ -147,12 +157,17 @@ export default function Read() {
         setRecommendedArticlesLoadState(1);
 
         try {
-            const response = await axios.get(`${RECOMMENDED_ARTICLES_URL}${articleContent.article_id}`);
+            const response = await axios.get(
+                `${RECOMMENDED_ARTICLES_URL}?author-id=${articleContent.author_id}&article-id=${articleContent.article_id}`
+            );
 
             const data = response.data;
             setRecommendedArticles(data.articles);
             setRecommendedArticleErrMsg('');
-            setRecommendedArticlesLoadState(0);
+
+            data.articles.length === 0
+            ? setRecommendedArticlesLoadState(3)
+            : setRecommendedArticlesLoadState(0);
 
         } catch (err) {
             console.log(err);
@@ -177,7 +192,7 @@ export default function Read() {
     const handleLikeClick = async () => {
         if(!userId) {
             const dialog = window.confirm("Please login to like this article");
-            if(dialog) navigate('/login', { replace: true });
+            if(dialog) navigate('/login', { state: { from: location }, replace: true});
         } else {
             const newState = !liked;
             setLiked(newState);
@@ -215,7 +230,7 @@ export default function Read() {
                 } else {
                     alert(`Failed to ${liked? 'like': 'unlike'} this article. Please retry.`);
                 }
-                
+
                 setArticleContent({ ...articleContent, like_count: articleContent.like_count + (liked? -1 : 1) });
                 setLiked(!liked);
             }
@@ -246,8 +261,9 @@ export default function Read() {
                     
                     <Editor
                         editorState={editorState}
-                        toolbarClassName="toolbar-style"
-                        editorClassName="editor-style"
+                        toolbarClassName="toolbar-style hidden"
+                        editorClassName="editor-style-readonly"
+                        readOnly={true}
                     />
 
                     <div onClick={handleLikeClick} className="read-like-container">
@@ -273,15 +289,8 @@ export default function Read() {
                 </div>
                 <hr className="read-vertical-hr"/>
                 <div className="read-details">
-                    <form className="search-layout">
-                        <input
-                            placeholder="Search more articles"
-                            type="text"
-                            name="search"
-                            id="search"
-                        />
-                        <img src={IconSearch} alt="search" />
-                    </form>
+                    
+                    <Search placeholder="Search more articles"/>
 
                     <div className="read-author-details-container">
                         <img className="author-profile-img" src={articleContent.author_image_url} alt="profilepic"/>
@@ -289,20 +298,22 @@ export default function Read() {
                         <p className="read-author-description">{articleContent.author_description}</p>
                     </div>
 
-                    <div className="author-recommended-container">
+                    {authorArticlesLoadState !== 3 && 
+                    (<div className="author-recommended-container">
                         <h2>More from the Author</h2>
                         <div className="author-recommended-list">
-                            {
-                                authorArticleErrMsg
-                                ? <p style={{color: 'black'}}>{authorArticleErrMsg}</p>
-                                :
-                                !authorArticles.length?
-                                <p style={{color: 'black'}}>Loading...</p>
-                                :
-                                authorArticles.map(article => <ArticleListItemSmall key={article.article_id} data={article} />)
-                            }
+                            {{
+                                0:
+                                authorArticles.map(article =>
+                                    <ArticleListItemSmall key={article.article_id} data={article} />
+                                ),
+                                1:
+                                <p style={{color: 'black'}}>Loading...</p>,
+                                2:
+                                <p style={{color: 'black'}}>{authorArticleErrMsg}</p>,
+                            }[authorArticlesLoadState]}
                         </div>
-                    </div>
+                    </div>)}
                 </div>
             </div>
             

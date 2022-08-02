@@ -1,18 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const mysql = require('mysql2');
 const pool = require('../config/dbConn');
 
 router.get('/', (req, res) => {
     const query = `
-    SELECT a.article_id, title, featured_image, permalink, publish_date, description, c.name as category_name,
-    COUNT(l.user_id) as like_count, SUM(v.view_count) as view_count
-    FROM Article AS a
-    INNER JOIN Category AS c ON a.category_id=c.category_id
-    LEFT JOIN ArticleLike AS l ON a.article_id = l.article_id
-    LEFT JOIN ArticleView AS v ON a.article_id = v.article_id
-    WHERE author_id=?
-    GROUP BY a.article_id
-    ORDER BY publish_date DESC, article_id DESC`;
+    SELECT * FROM FullArticleDetail
+    WHERE author_id=?`;
 
     pool.query(query, req.user_id, (err, result) => {
         if(err) {
@@ -20,17 +14,52 @@ router.get('/', (req, res) => {
             return res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });
         }
 
-        if(result.length === 0) {
-            return res.status(204).json({ data: result });
-        } else {
-            return res.status(200).json({ data: result });
-        }
+        return res.status(200).json({ data: result });
     });
 });
 
-router.get('/search', (req, res) => {
+router.post('/filter', (req, res) => {
+    const data = req.body;
+    console.log(data);
+
+    let query = 'SELECT * FROM FullArticleDetail ';
+    let valueArray = [];
+
+    if(data.search) {
+        query += 'WHERE author_id=? AND (title LIKE "%"?"%" OR article_description LIKE "%"?"%" OR category_name LIKE "%"?"%") ';
+        valueArray = valueArray.concat([req.user_id, data.search, data.search, data.search]);
+    } else {
+        query += 'WHERE author_id=? ';
+        valueArray.push(req.user_id);
+    }
+
+    if(data.category && !isNaN(data.category) && data.category > 0) {
+        query += 'AND category_id=? ';
+        valueArray.push(data.category);
+    }
     
+    if(data.sortByType === 0)
+        if(data.orderByType === 0)
+            query += 'ORDER BY publish_date ASC, article_id ASC';
+        else
+            query += 'ORDER BY publish_date DESC, article_id DESC';
+    else
+        if(data.orderByType === 0)
+            query += 'ORDER BY view_count ASC, article_id ASC';
+        else
+            query += 'ORDER BY view_count DESC, article_id DESC';
+
+    pool.query(query, valueArray, (err, result) => {
+        if(err) {
+            console.log(err);
+            return res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });
+        }
+
+        return res.status(200).json({ data: result });
+    });
 });
+
+
 
 router.delete('/:articleId', (req, res) => {
     const articleId = parseInt(req.params.articleId);

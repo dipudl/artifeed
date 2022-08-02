@@ -38,6 +38,8 @@ router.get('/', (req, res) => {
 
     let articleQuery;
 
+    console.log("View", permalink);
+
     if(userId) {
         articleQuery = mysql.format(articleWithLikedFetchQuery, [userId, permalink, permalink]);
     } else {
@@ -50,11 +52,11 @@ router.get('/', (req, res) => {
             return res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });
         }
 
-        if(response.length === 0)
+        if(response.length === 0 || !response[0].article_id)
             return res.status(404).json({ message: 'Page not found' });
 
-        pool.query(articleViewUpdateQuery, response[0].article_id, (err, result) => {
-            if (err) { 
+        pool.query(articleViewUpdateQuery, response[0].article_id, (error, result) => {
+            if (error) { 
                 console.log(err);
                 return res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });
             }
@@ -74,11 +76,18 @@ router.get('/author-articles', (req, res) => {
     if(!authorId || !articleId)
         return res.status(400).json({ message: 'Error occurred due to incomplete data' });
 
-    const authorArticlesQuery = `
+    /* const authorArticlesQuery = `
     SELECT a.article_id, title, permalink, featured_image
     FROM Article AS a
     WHERE a.article_id<>? AND author_id=?
     ORDER BY publish_date DESC, a.article_id DESC
+    LIMIT 5`; */
+
+    const authorArticlesQuery = `
+    SELECT article_id, title, permalink, featured_image
+    FROM FullArticleDetail
+    WHERE article_id<>? AND author_id=?
+    ORDER BY like_count DESC, view_count DESC
     LIMIT 5`;
 
     pool.query(authorArticlesQuery, [articleId, authorId], (err, result) => {
@@ -93,23 +102,23 @@ router.get('/author-articles', (req, res) => {
     });
 });
 
+
+
 router.get('/recommended-articles', (req, res) => {
     const articleId = req.query['article-id'];
+    const authorId = req.query['author-id'];
     
-    if(!articleId)
+    if(!articleId || !authorId)
         return res.send(400).json({ message: 'Error occurred due to incomplete data' });
 
     const recommendedArticlesQuery = `
-    SELECT a.article_id, title, a.description as article_description, permalink, featured_image, publish_date,
-    CONCAT(u.first_name, ' ', u.last_name) as author_name, u.image_url as author_image_url, c.name as category_name
-    FROM Article AS a
-    INNER JOIN User AS u ON a.author_id = u.user_id
-    INNER JOIN Category AS c ON a.category_id = c.category_id
-    WHERE a.article_id<>?
-    ORDER BY publish_date DESC, a.article_id DESC
+    SELECT *
+    FROM FullArticleDetail
+    WHERE author_id<>?
+    ORDER BY like_count DESC, view_count DESC
     LIMIT 5`;
 
-    pool.query(recommendedArticlesQuery, articleId, (err, result) => {
+    pool.query(recommendedArticlesQuery, authorId, (err, result) => {
         if(err) {
             console.log(err);
             return res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });

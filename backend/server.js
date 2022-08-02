@@ -20,6 +20,7 @@ app.use('/register', require('./routes/register'));
 app.use('/login', require('./routes/login'));
 app.use('/search', require('./routes/search'));
 app.use('/read', require('./routes/read'));
+app.use('/home', require('./routes/home'));
 app.use('/refresh', require('./routes/refresh'));
 app.use('/logout', require('./routes/logout'));
 

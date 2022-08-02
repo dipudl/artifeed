@@ -2,7 +2,7 @@
     display: flex;
 }
 
-.search-layout input{
+.search-layout input[type="text"]{
     background: #DEDEDE;
     border-radius: 0.4375rem 0 0 0.4375rem;
     border-width: 0px;
@@ -16,7 +16,7 @@
     flex: 100%;
 }
 
-.search-layout img{
+.search-layout img, .search-layout input[type="image"]{
     padding: 0.65rem;
     border-radius: 0 0.375rem 0.375rem 0;
     background-color: #FA4A0C;

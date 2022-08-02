@@ -15,6 +15,7 @@ import ArticleEditor from '../pages/ArticleEditor/ArticleEditor';
 import Read from '../pages/Read/Read';
 
 function App() {
+
   return (
     <Router>
       <Routes>        
@@ -32,9 +33,9 @@ function App() {
               <Route path='/article' element={<Article />} />
             </Route>
           </Route>
-        </Route>
 
-        <Route path="*" element={<Error404 />} />
+          <Route path="*" element={<Error404 />} />
+        </Route>
       </Routes>
     </Router>
   );
