@@ -19,6 +19,7 @@ import useAuth from "../../hooks/useAuth";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import { Editor } from "react-draft-wysiwyg";
 import Search from "../../components/Search/Search";
+import Error404 from "../Error404/Error404";
 
 const ARTICLE_CONTENT_URL = "/read?article=";
 const AUTHOR_ARTICLES_URL = "/read/author-articles";
@@ -32,6 +33,8 @@ export default function Read() {
 
     const [editorState, setEditorState] = useState(EditorState.createEmpty());
     const [articleContent, setArticleContent] = useState();
+    // articleContentLoadState: 0 = normal, 1 = loading, 2 = error, 4 = 404 not found
+    const [articleContentLoadState, setArticleContentLoadState] = useState(1);
     const [recommendedArticles, setRecommendedArticles] = useState([]);
     const [authorArticles, setAuthorArticles] = useState([]);
     // current article is liked or not by current user
@@ -72,6 +75,8 @@ export default function Read() {
         }
 
         const getArticleDetails = async () => {
+            setArticleContentLoadState(1);
+
             try {
                 const response = await axios.get(articleUrl, {
                     signal: controller.signal
@@ -87,15 +92,18 @@ export default function Read() {
 
                     setLiked(data.liked);
                     setErrMsg('');
+                    setArticleContentLoadState(0);
                 }
 
             } catch (err) {
                 console.log(err);
+                setArticleContentLoadState(2);
 
                 if(!err?.response) {
                     setErrMsg('No Server Response');
     
                 } else if (err.response?.status === 404) {
+                    setArticleContentLoadState(4);
                     setErrMsg('404 Page Not Found');
     
                 } else if(err.response?.data?.message) {
@@ -238,12 +246,14 @@ export default function Read() {
     }
 
     return (
-        errMsg?
+        articleContentLoadState === 2?
         <p style={{color: 'black'}}>{errMsg}</p>
-        : !articleContent?
+        : articleContentLoadState === 1?
         <p style={{color: 'black'}}>Loading...</p>
+        : articleContentLoadState === 4?
+        <Error404 />
         :
-        <div>
+        (<div>
             <Navbar data={{
                 buttonUnfilled: {
                     text: 'Login',
@@ -318,6 +328,6 @@ export default function Read() {
             </div>
             
             <Footer />
-        </div>
+        </div>)
     );
 }

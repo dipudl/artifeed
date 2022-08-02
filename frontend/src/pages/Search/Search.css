@@ -1,0 +1,29 @@
+.search-page-container {
+    padding: 0 7% 6rem;
+}
+
+.search-body {
+    display: flex;
+    column-gap: 3rem;
+    width: 100%;
+}
+
+.articles-list {
+    margin-top: 2rem;
+}
+
+.search-page-h1 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: #202020;
+    margin: 2rem 0;
+}
+
+.search-article-container {
+    flex-basis: 66.67%;
+}
+
+.search-filter-container {
+    flex-basis: 33.33%;
+}

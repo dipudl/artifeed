@@ -107,8 +107,6 @@ export default function Article() {
 
     const applyFilterRequest = async () => {
         setShowFilters(false);
-
-        console.log(filterCategory, sortByType, orderByType);
         setArticlesState(1);
 
         try {

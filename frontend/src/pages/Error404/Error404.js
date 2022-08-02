@@ -8,7 +8,7 @@ export default function Error404() {
         <div className="page-not-found-container">
             <Navbar />
             <div className="text-404">
-                <h1>404 page not found</h1>
+                <h1>404 : Page not found</h1>
             </div>
         </div>
     );

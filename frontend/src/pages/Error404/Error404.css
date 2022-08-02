@@ -6,10 +6,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 80%;
+    height: 80vh;
 }
 
-.page-not-found-container h1 {
+.text-404 h1 {
     font-family: 'Poppins', sans-serif;
     color: #202020;
     font-weight: 600;

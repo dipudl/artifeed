@@ -13,6 +13,7 @@ import Article from './Article/Article';
 import Sidebar from './Sidebar/Sidebar';
 import ArticleEditor from '../pages/ArticleEditor/ArticleEditor';
 import Read from '../pages/Read/Read';
+import Search from '../pages/Search/Search';
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
           <Route path='/' element={<Home />} exact/>
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
+          <Route path='/search' element={<Search />} />
           <Route path='/read/:permalink' element={<Read />} />
 
           <Route element={<ProtectedRoutes />}>

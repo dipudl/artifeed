@@ -10,7 +10,7 @@ export default function Search({ placeholder }) {
     const handleSearch = (e) => {
         e.preventDefault();
         if(search) {
-            navigate(`/search?q=${search}`, {replace: true});
+            navigate(`/search?q=${search}`);
         }
     }
 

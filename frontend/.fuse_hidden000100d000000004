@@ -1,0 +1,25 @@
+[debug] [2022-08-02T19:26:38.082Z] ----------------------------------------------------------------------
+[debug] [2022-08-02T19:26:38.086Z] Command:       /usr/bin/node /usr/bin/firebase init
+[debug] [2022-08-02T19:26:38.087Z] CLI Version:   11.4.1
+[debug] [2022-08-02T19:26:38.087Z] Platform:      linux
+[debug] [2022-08-02T19:26:38.087Z] Node Version:  v16.16.0
+[debug] [2022-08-02T19:26:38.088Z] Time:          Wed Aug 03 2022 01:11:38 GMT+0545 (Nepal Time)
+[debug] [2022-08-02T19:26:38.088Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2022-08-02T19:26:38.100Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2022-08-02T19:26:38.101Z] > authorizing via signed-in user (dipu234dahal@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /media/dipu/New Volume/Projects/Web/artifeed/frontend
+
+Before we get started, keep in mind:
+
+  * You are currently outside your home directory
+
