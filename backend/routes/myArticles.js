@@ -67,9 +67,7 @@ router.delete('/:articleId', (req, res) => {
     if(!articleId || isNaN(articleId) || articleId <= 0)
         return res.status(400).json({ message: 'Invalid article information' });
 
-    const query = `
-    DELETE FROM Article
-    WHERE author_id=? AND article_id=?`;
+    const query = 'SELECT Fn_DeleteArticle(?, ?)';
 
     pool.query(query, [req.user_id, articleId], (err, result) => {
         if(err) {
@@ -77,7 +75,12 @@ router.delete('/:articleId', (req, res) => {
             return res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });
         }
 
-        res.status(200).json({ article_id: articleId });
+        console.log(result);
+
+        if(result.length > 0 && result[0][`Fn_DeleteArticle(${req.user_id}, ${articleId})`] === 'success')
+            return res.status(200).json({ article_id: articleId });
+
+        return res.status(400).json({ message: 'Failed to delete article' });
     });
 });
 
