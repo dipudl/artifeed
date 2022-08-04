@@ -33,5 +33,5 @@
 }
 
 .public-DraftStyleDefault-block.public-DraftStyleDefault-ltr span {
-    word-break: break-all;
+    word-break: break-word;
 }

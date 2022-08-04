@@ -1,3 +1,6 @@
+const { unlink } = require('fs');
+const path = require('path');
+
 function createPermalink(str) {
     const re = /[^a-z0-9]+/gi; // global and case insensitive matching of non-char/non-numeric
     const re2 = /^-*|-*$/g;     // get rid of any leading/trailing dashes
@@ -5,4 +8,10 @@ function createPermalink(str) {
     return str.replace(re2, '').toLowerCase(); // ..aaand the second + return lowercased result
 }
 
-module.exports = { createPermalink };
+function removeFile(filePath) {
+    unlink(path.join(__dirname, `../uploads/${filePath}`), (err) => {
+        if (err) console.log(err);
+    });
+}
+
+module.exports = { createPermalink, removeFile };

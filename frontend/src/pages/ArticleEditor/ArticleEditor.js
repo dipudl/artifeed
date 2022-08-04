@@ -169,7 +169,7 @@ export default function ArticleEditor() {
             return alert("Permalink can only contain a-z, A-Z, 0-9, underscore and hyphen and must have 5 to 180 characters");
         
         const content = JSON.stringify(convertToRaw(editorState.getCurrentContent()));
-        const isPermalinkChanged = originalPermalink && (permalink !== originalPermalink);
+        const isPermalinkChanged = (permalinkType === 1) && (!articleId || (permalink !== originalPermalink));
 
         try {
             setArticlePublishState(1);
@@ -178,7 +178,7 @@ export default function ArticleEditor() {
                 articleId? EDIT_URL : PUBLISH_URL,
                 JSON.stringify({
                     articleId, title, content, category, featuredImage, 
-                    permalinkType: isPermalinkChanged? 1: 0, 
+                    permalinkType: isPermalinkChanged? 1: 0,
                     permalink, description
                 }),
                 {

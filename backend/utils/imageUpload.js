@@ -12,13 +12,11 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const imageName = uuidv4() + "." + file.mimetype.split("/")[1];
-        console.log(file.originalname, imageName);
         cb(null, imageName);
     },
 });
 
 const fileFilter = (req, file, cb) => {
-    console.log("mime", file.mimetype);
     if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
       cb(null, true);
     } else {

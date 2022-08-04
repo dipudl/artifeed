@@ -24,7 +24,7 @@ export default function ArticleListItem({ data }) {
                 </div>
             </div>
             <div className="featured-image-div">
-                <img className="featured-image" src={data.featuredImage || DefaultFeatureImage} alt="featured"/>
+                <img className="featured-image" src={data.featured_image || DefaultFeatureImage} alt="featured"/>
             </div>
         </Link>
     );

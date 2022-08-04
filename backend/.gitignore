@@ -1,6 +1,8 @@
 #uploads
 uploads/*
 
+remaining-features.txt
+
 #storage bucket key
 config/serviceAccountKey.json
 

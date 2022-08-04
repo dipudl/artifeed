@@ -3,6 +3,7 @@ const multer = require('multer');
 const router = express.Router();
 const pool = require('../config/dbConn');
 const { PROFILE_PIC_STORAGE_PATH, EMAIL_REGEX, USERNAME_REGEX } = require('../utils/constants');
+const { removeFile } = require('../utils/functions');
 const { uploadFile, multerUploader } = require('../utils/imageUpload');
 
 router.get('/', (req, res) => {
@@ -120,6 +121,9 @@ router.patch('/image', (req, res) => {
             .catch((error) => {
                 console.log("Upload error :::", error);
                 res.status(500).json({ message: 'An unexpected error occurred. Please try again.' });
+            })
+            .finally(() => {
+                removeFile(req.file.filename);
             });
     })
 });
