@@ -39,15 +39,25 @@
     margin-bottom: 6rem;
 }
 
+.article-category-select-border {
+    width: 100%;
+    padding-right: 0.6rem;
+    border: 1px solid #FA4A0C;
+    border-radius: 0.4375rem;
+    outline: none;
+}
+
 .article-details #categories {
     width: 100%;
     font-family: 'Inter', sans-serif;
     font-size: 0.9rem;
     color: #202020;
     background: none;
-    padding: 0.6rem 0.8rem;
-    border: 1px solid #FA4A0C;
-    border-radius: 0.4375rem;
+    padding: 0.6rem 0.6rem;
+    cursor: pointer;
+    /* border: 1px solid #FA4A0C;
+    border-radius: 0.4375rem; */
+    border: none;
     outline: none;
 }
 

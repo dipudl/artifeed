@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import NavbarDynamic from "../../components/Navbar/NavbarDynamic";
+import { STATUS } from '../../utils/constants';
 import "./ArticleEditor.css";
 import Editor from "../../components/Editor/Editor";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
@@ -7,6 +8,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import IconError from '../../assets/ic_error.svg';
 import IconLoading from '../../assets/ic_loading.svg';
 import { convertFromRaw, convertToRaw, EditorState } from "draft-js";
+import ProcessStatusBar from "../../components/ProcessStatusBar/ProcessStatusBar";
 
 const CATEGORIES_URL = "/home/categories";
 const IMAGE_UPLOAD_URL = "/image/upload";
@@ -31,11 +33,11 @@ export default function ArticleEditor() {
     const [permalinkType, setPermalinkType] = useState(0);
     // authState: 0 = normal, 1 = loading, 2 = error
     const [featImgUploadState, setFeatImgUploadState] = useState(0);
-    const [permalinkValidationState, setPermalinkValidationState] = useState(0);
+    const [permalinkValidationState, setPermalinkValidationState] = useState(STATUS.INITIAL);
     const [articlePublishState, setArticlePublishState] = useState(0);
     const [errMsg, setErrMsg] = useState('');
     const [featImgUploadErrMsg, setFeatImgUploadErrMsg] = useState('');
-    const [permalinkValidationErr, setPermalinkValidationErr] = useState('');
+    const [permalinkValidationMessage, setPermalinkValidationMessage] = useState('');
 
     const axiosPrivate = useAxiosPrivate();
     const navigate = useNavigate();
@@ -169,7 +171,7 @@ export default function ArticleEditor() {
             return alert("Permalink can only contain a-z, A-Z, 0-9, underscore and hyphen and must have 5 to 180 characters");
         
         const content = JSON.stringify(convertToRaw(editorState.getCurrentContent()));
-        const isPermalinkChanged = (permalinkType === 1) && (!articleId || (permalink !== originalPermalink));
+        const isPermalinkChanged = (permalinkType === 1) && (!articleId || (permalink !== originalPermalink));  
 
         try {
             setArticlePublishState(1);
@@ -275,18 +277,23 @@ export default function ArticleEditor() {
     const handlePermalinkChange = (e) => {
         const value = e.target.value;
         if(!value || value.length < 5) {
-            setPermalinkValidationErr('Permalink must contain 5 or more characters')
-            setPermalinkValidationState(2);
+            setPermalinkValidationMessage('Permalink must contain 5 or more characters')
+            setPermalinkValidationState(STATUS.ERROR);
 
         } else if(value.length > 180) {
-            setPermalinkValidationErr('Permalink can only contain 180 characters at max')
-            setPermalinkValidationState(2);
+            setPermalinkValidationMessage('Permalink can only contain 180 characters at max')
+            setPermalinkValidationState(STATUS.ERROR);
 
         } else if(!value.match(/^[A-Za-z0-9_-]{5,180}$/)) {
-            setPermalinkValidationErr('Permalink can only contain a-z, A-Z, 0-9, underscore and hyphen and must have at least 5 characters')
-            setPermalinkValidationState(2);
+            setPermalinkValidationMessage('Permalink can only contain a-z, A-Z, 0-9, underscore and hyphen and must have at least 5 characters')
+            setPermalinkValidationState(STATUS.ERROR);
         } else {
-            setPermalinkValidationState(permalinkValidationState === 1? 1: 0);
+            if(permalinkValidationState === STATUS.LOADING) {
+                setPermalinkValidationState(STATUS.LOADING);
+                setPermalinkValidationMessage('Validating...');
+            } else {
+                setPermalinkValidationState(STATUS.INITIAL);
+            }
         }
 
         setPermalink(e.target.value);
@@ -297,19 +304,20 @@ export default function ArticleEditor() {
             return;
 
         if(!permalink || permalink.length < 5) {
-            setPermalinkValidationErr('Permalink must contain 5 or more characters')
-            setPermalinkValidationState(2);
+            setPermalinkValidationMessage('Permalink must contain 5 or more characters')
+            setPermalinkValidationState(STATUS.ERROR);
 
         } else if(permalink.length > 180) {
-            setPermalinkValidationErr('Permalink can only contain 180 characters at max')
-            setPermalinkValidationState(2);
+            setPermalinkValidationMessage('Permalink can only contain 180 characters at max')
+            setPermalinkValidationState(STATUS.ERROR);
 
         } else if(!permalink.match(/^[A-Za-z0-9_\-]{5,180}$/)) {
-            setPermalinkValidationErr('Permalink can only contain a-z, A-Z, 0-9, underscore and hyphen and must have at least 5 characters')
-            setPermalinkValidationState(2);
+            setPermalinkValidationMessage('Permalink can only contain a-z, A-Z, 0-9, underscore and hyphen and must have at least 5 characters')
+            setPermalinkValidationState(STATUS.ERROR);
 
         } else {
-            setPermalinkValidationState(1);
+            setPermalinkValidationState(STATUS.LOADING);
+            setPermalinkValidationMessage('Validating...');
 
             try {
                 const response = await axiosPrivate.post(
@@ -321,26 +329,27 @@ export default function ArticleEditor() {
                     }
                 );
     
-                setPermalinkValidationState(0);
+                setPermalinkValidationState(STATUS.SUCCESS);
+                setPermalinkValidationMessage('Permalink is valid');
     
             } catch(err) {
                 if(!err?.response) {
-                    setPermalinkValidationErr('No Server Response');
+                    setPermalinkValidationMessage('No Server Response');
     
                 } else if (err.response?.status === 401) {
-                    setPermalinkValidationErr('Session expired. Please login to continue.');
+                    setPermalinkValidationMessage('Session expired. Please login to continue.');
     
                 } else if(err.response?.data?.message) {
-                    setPermalinkValidationErr(err.response?.data?.message);
+                    setPermalinkValidationMessage(err.response?.data?.message);
     
                 } else if(err.message) {
-                    setPermalinkValidationErr(err.message);
+                    setPermalinkValidationMessage(err.message);
                     
                 } else {
-                    setPermalinkValidationErr('Profile update failed');
+                    setPermalinkValidationMessage('Permalink update failed');
                 }
     
-                setPermalinkValidationState(2);
+                setPermalinkValidationState(STATUS.ERROR);
             }
         }
     }
@@ -391,23 +400,25 @@ export default function ArticleEditor() {
                 </div>
                 <hr/>
                 <div className="article-details">
-                    <select
-                        name="categories"
-                        id="categories"
-                        value={category}
-                        onChange={(e) => setCategory(parseInt(e.target.value))}
-                    >
-                        <option value={-1}>Select category</option>
-                        {
-                            defaultCategories.map(category => (
-                                <option
-                                    key={category.category_id}
-                                    value={category.category_id}>
-                                    {category.name}
-                                </option>   
-                            ))
-                        }
-                    </select>
+                    <div className="article-category-select-border">
+                        <select
+                            name="categories"
+                            id="categories"
+                            value={category}
+                            onChange={(e) => setCategory(parseInt(e.target.value))}
+                        >
+                            <option value={-1}>Select category</option>
+                            {
+                                defaultCategories.map(category => (
+                                    <option
+                                        key={category.category_id}
+                                        value={category.category_id}>
+                                        {category.name}
+                                    </option>   
+                                ))
+                            }
+                        </select>
+                    </div>
 
                     <div className="featured-image-selection">
                         <p className="div-title">Featured image</p>
@@ -492,7 +503,7 @@ export default function ArticleEditor() {
                                 onChange={handlePermalinkChange}
                                 required
                             />
-                            {{
+                            {/* {{
                                 1:
                                 <div className={"auth-info info-color small-margin-top"}>
                                     <img className="rotate" src={IconLoading} alt="icon" />
@@ -503,7 +514,15 @@ export default function ArticleEditor() {
                                     <img src={IconError} alt="icon" />
                                     <p className="auth-info-text">{permalinkValidationErr}</p>
                                 </div>
-                            }[permalinkValidationState]}
+                            }[permalinkValidationState]} */}
+
+                            {
+                                <ProcessStatusBar
+                                    processState={permalinkValidationState}
+                                    message={permalinkValidationMessage}
+                                />
+                            }
+
                             <button onClick={handlePermalinkApply} className="positive-btn">Apply</button>
                         </div>
                         }

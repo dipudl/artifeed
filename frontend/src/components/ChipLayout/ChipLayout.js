@@ -3,6 +3,7 @@ import './ChipLayout.css';
 import IconError from '../../assets/ic_error.svg';
 import IconLoading from '../../assets/ic_loading.svg';
 import axios from "../../api/axios";
+import { Link } from "react-router-dom";
 const CATEGORIES_URL = "/home/categories";
 
 export default function ChipLayout() {
@@ -66,7 +67,15 @@ export default function ChipLayout() {
             0:
                 <div className="chip-layout">
                     <p className="chip active">All</p>
-                    {categoryList.map(category => <p key={category.category_id} className="chip">{category.name}</p>)}
+                    {categoryList.map(category =>
+                        <Link
+                            key={category.category_id}
+                            className="chip"
+                            to={`/search?category=${category.category_id}`}
+                        >
+                        {category.name}
+                        </Link>
+                    )}
                 </div>,
             1:
                 <div className={"auth-info info-color"}>

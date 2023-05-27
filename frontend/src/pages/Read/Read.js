@@ -57,11 +57,11 @@ export default function Read() {
     }
 
     useEffect(() => {
-        if(articleContent) {
+        if(articleContent && articleContentLoadState == 0) {
             getAuthorArticles();
             getRecommendedArticles();
         }
-    }, [articleContent]);
+    }, [articleContentLoadState]);
 
     useEffect(() => {
         let isMounted = true;

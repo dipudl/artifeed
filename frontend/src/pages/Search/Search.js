@@ -7,6 +7,7 @@ import IconError from '../../assets/ic_error.svg';
 import IconLoading from '../../assets/ic_loading.svg';
 import './Search.css';
 import { useSearchParams } from "react-router-dom";
+import { STATUS } from "../../utils/constants";
 
 const SEARCH_ARTICLE_URL = "/search";
 const CATEGORIES_URL = "/home/categories";
@@ -15,10 +16,10 @@ export default function Search() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [search, setSearch] = useState(searchParams.get('q') || '');
     const [articles, setArticles] = useState([]);
-    const [articlesState, setArticlesState] = useState();
+    const [articlesState, setArticlesState] = useState(STATUS.LOADING);
     const [sortByType, setSortByType] = useState(0);
     const [orderByType, setOrderByType] = useState(1);
-    const [filterCategory, setFilterCategory] = useState(-1);
+    const [filterCategory, setFilterCategory] = useState(searchParams.get('category') || -1);
     const [categoryList, setCategoryList] = useState([]);
     const [errMsg, setErrMsg] = useState();
 
@@ -51,6 +52,20 @@ export default function Search() {
         }
     }
 
+    const updateUrlParams = () => {
+        if(filterCategory >= 0)
+            searchParams.set('category', filterCategory);
+        else
+            searchParams.delete('category');
+
+        if(search)
+            searchParams.set('q', search);
+        else
+            searchParams.delete('q');
+
+        setSearchParams(searchParams);
+    }
+
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         applyFilterRequest();
@@ -62,7 +77,8 @@ export default function Search() {
     }
 
     const applyFilterRequest = async () => {
-        setArticlesState(1);
+        updateUrlParams();
+        setArticlesState(STATUS.LOADING);
 
         try {
             const response = await axios.post(SEARCH_ARTICLE_URL,
@@ -76,7 +92,7 @@ export default function Search() {
                     withCredentials: false
                 });
 
-            response.data.data.length === 0 ? setArticlesState(3): setArticlesState(0);
+            response.data.data.length === 0 ? setArticlesState(STATUS.EMPTY): setArticlesState(STATUS.SUCCESS);
             setArticles(response.data.data);
             setErrMsg('');
         } catch (err) {
@@ -95,7 +111,7 @@ export default function Search() {
                 setErrMsg('An error occurred');
             }
 
-            setArticlesState(2);
+            setArticlesState(STATUS.ERROR);
         }
     }
 
@@ -128,23 +144,23 @@ export default function Search() {
                         </form>
                         <div className="articles-list">
                             {{
-                                0:
-                                <>{articles.map(article => <ArticleListItem key={article.article_id} data={article}/>)}</>,
-                                1:
-                                <div className={"auth-info info-color"}>
-                                    <img className="rotate" src={IconLoading} alt="icon" />
-                                    <p className="auth-info-text">Loading articles...</p>
-                                </div>,
-                                2:
-                                <div className={"auth-info error-color"}>
-                                    <img src={IconError} alt="icon" />
-                                    <p className="auth-info-text">{errMsg}</p>
-                                </div>,
-                                3:
-                                <div className={"auth-info info-color"}>
-                                    <img src={IconLoading} alt="icon" />
-                                    <p className="auth-info-text">No articles found</p>
-                                </div>
+                                [STATUS.SUCCESS]:
+                                    <>{articles.map(article => <ArticleListItem key={article.article_id} data={article}/>)}</>,
+                                [STATUS.LOADING]:
+                                    <div className={"auth-info info-color"}>
+                                        <img className="rotate" src={IconLoading} alt="icon" />
+                                        <p className="auth-info-text">Loading articles...</p>
+                                    </div>,
+                                [STATUS.ERROR]:
+                                    <div className={"auth-info error-color"}>
+                                        <img src={IconError} alt="icon" />
+                                        <p className="auth-info-text">{errMsg}</p>
+                                    </div>,
+                                [STATUS.EMPTY]:
+                                    <div className={"auth-info info-color"}>
+                                        <img src={IconLoading} alt="icon" />
+                                        <p className="auth-info-text">No articles found</p>
+                                    </div>
                             }[articlesState]}
                         </div>
                     </div>
@@ -152,23 +168,25 @@ export default function Search() {
                     <div className="search-filter-container">
                         <form className="filter-container" onSubmit={handleFilterSubmit}>
                             <h3>Filter articles:</h3>
-                            <select
-                                name="categories"
-                                id="categories"
-                                value={filterCategory}
-                                onChange={(e) => setFilterCategory(parseInt(e.target.value))}
-                            >
-                                <option value={-1}>Select category</option>
-                                {
-                                    categoryList.map(category => (
-                                        <option
-                                            key={category.category_id}
-                                            value={category.category_id}>
-                                            {category.name}
-                                        </option>   
-                                    ))
-                                }
-                            </select>
+                            <div className="filter-category-select-border">
+                                <select
+                                    name="categories"
+                                    id="categories"
+                                    value={filterCategory}
+                                    onChange={(e) => setFilterCategory(parseInt(e.target.value))}
+                                >
+                                    <option value={-1}>All categories</option>
+                                    {
+                                        categoryList.map(category => (
+                                            <option
+                                                key={category.category_id}
+                                                value={category.category_id}>
+                                                {category.name}
+                                            </option>   
+                                        ))
+                                    }
+                                </select>
+                            </div>
 
                             <div className="filter-radio-buttons-containter">
                                 <div>

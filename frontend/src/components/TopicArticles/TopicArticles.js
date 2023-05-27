@@ -1,25 +1,28 @@
 import React, { useState, useEffect } from "react";
-import './TopicArticles.css'
+import { STATUS } from '../../utils/constants';
+import './TopicArticles.css';
 import ArticleListItem from "../ArticleListItem/ArticleListItem";
 import axios from "../../api/axios";
 
 import IconError from '../../assets/ic_error.svg';
 import IconLoading from '../../assets/ic_loading.svg';
+import ProcessStatusBar from "../ProcessStatusBar/ProcessStatusBar";
 
 const TOPIC_ARTICLES_LINK = "/home/topic?q=";
 
 export default function TopicArticle(props) {
     const [articleList, setArticleList] = useState([]);
     // 0 = normal, 1 = loading, 2 = error, 3 = empty response
-    const [articlesLoadingState, setArticlesLoadingState] = useState(0);
-    const [errMsg, setErrMsg] = useState('');
+    const [articlesLoadingState, setArticlesLoadingState] = useState(STATUS.LOADING);
+    const [statusMessage, setStatusMessage] = useState('Fetching...');
 
     useEffect(() => {
         let isMounted = true;
         const controller = new AbortController();
 
         const getArticles = async () => {
-            setArticlesLoadingState(1);
+            setArticlesLoadingState(STATUS.LOADING);
+            setStatusMessage('Fetching...');
 
             try {
                 const response = await axios.get(`${TOPIC_ARTICLES_LINK}${props.topic}`,
@@ -31,30 +34,32 @@ export default function TopicArticle(props) {
                 if(isMounted) {
                     setArticleList(data.articles);
 
-                    data.articles.length === 0
-                    ? setArticlesLoadingState(3)
-                    : setArticlesLoadingState(0);
-
-                    setErrMsg('');
+                    if(data.articles.length === 0) {
+                        setArticlesLoadingState(STATUS.EMPTY);
+                        setStatusMessage('No articles found');
+                    } else {
+                        setArticlesLoadingState(STATUS.SUCCESS);
+                        setStatusMessage('');
+                    }
                 }
 
             } catch (err) {
                 console.log(err);
 
                 if(!err?.response) {
-                    setErrMsg('No Server Response');
+                    setStatusMessage('No Server Response');
     
                 } else if(err.response?.data?.message) {
-                    setErrMsg(err.response?.data?.message);
+                    setStatusMessage(err.response?.data?.message);
     
                 } else if(err.message) {
-                    setErrMsg(err.message);
+                    setStatusMessage(err.message);
                     
                 } else {
-                    setErrMsg('An error occurred');
+                    setStatusMessage('An error occurred');
                 }
 
-                setArticlesLoadingState(2);
+                setArticlesLoadingState(STATUS.ERROR);
             }
         }
 
@@ -68,8 +73,8 @@ export default function TopicArticle(props) {
 
     return (
         <div className="topic-articles">
-                <h2 className="list-title">{props.topic}</h2>
-            {{
+            <h2 className="list-title">{props.topic}</h2>
+            {/* {{
                 0:
                 <>
                 {articleList.map(article => <ArticleListItem key={article.article_id} data={article} />)}
@@ -89,7 +94,19 @@ export default function TopicArticle(props) {
                     <img src={IconLoading} alt="icon" />
                     <p className="auth-info-text">No articles found</p>
                 </div>
-            }[articlesLoadingState]}
+            }[articlesLoadingState]} */}
+
+            {
+                articlesLoadingState === STATUS.SUCCESS ?
+                <>
+                    {articleList.map(article => <ArticleListItem key={article.article_id} data={article} />)}
+                </>
+                :
+                <ProcessStatusBar 
+                    processState={articlesLoadingState}
+                    message={statusMessage}
+                />
+            }
         </div>
     );
 }

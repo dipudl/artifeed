@@ -1,0 +1,47 @@
+.ProcessStatusBar-info {
+    display: flex;
+    align-items: center;
+    border: 1px solid #DEDEDE;
+    border-radius: 0.4375rem;
+    padding: 0.6rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 0.9rem;
+}
+
+.success-color {
+    color: #1C8E42;
+}
+
+.loading-color {
+    color: #202020;
+}
+
+.error-color {
+    color: #F60606;
+}
+
+.empty-color {
+    color: #202020;
+}
+
+.info-color {
+    color: #202020;
+}
+
+.ProcessStatusBar-message-text {
+    padding-left: 0.6rem;
+}
+
+@keyframes rotating {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate {
+    animation: rotating 3s linear infinite;
+}

@@ -4,11 +4,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 import IconError from '../../assets/ic_error.svg';
 import IconLoading from '../../assets/ic_loading.svg';
 import './Profile.css';
+import ProcessStatusBar from "../ProcessStatusBar/ProcessStatusBar";
+import { STATUS } from "../../utils/constants";
 
 const PROFILE_URL = "/profile";
 const PROFILE_UPDATE_URL = "/profile/details";
 const PROFILE_PIC_UPDATE_URL = "/profile/image";
-const USERNAME_REGEX = /^[a-z0-9_]{2,30}$/;
+const USERNAME_REGEX = /^[a-z0-9_]{3,30}$/;
 
 export default function Profile() {
     const [profileDetails, setProfileDetails] = useState();
@@ -22,12 +24,12 @@ export default function Profile() {
     const [picUploadProgress, setPicUploadProgress] = useState(0);
 
     // profileState: 0 = normal, 1 = updating, 2 = error
-    const [profileState, setProfileState] = useState(0);
+    const [profileUpdateState, setProfileUpdateState] = useState(STATUS.INITIAL);
     const [picUploadState, setPicUploadState] = useState(0);
 
     const [errMsg, setErrMsg] = useState('');
     const [picUploadErrMsg, setPicUploadErrMsg] = useState('');
-    const [updateErrMsg, setUpdateErrMsg] = useState('');
+    const [profileUpdateMessage, setProfileUpdateMessage] = useState('');
 
     const axiosPrivate = useAxiosPrivate();
     const navigate = useNavigate();
@@ -87,7 +89,8 @@ export default function Profile() {
     }, []);
 
     const updateDetails = async (e) => {
-        setProfileState(1);
+        setProfileUpdateMessage('Updating...')
+        setProfileUpdateState(STATUS.LOADING);
         e.preventDefault();
 
         try {
@@ -102,28 +105,28 @@ export default function Profile() {
                 }
             );
 
-            console.log(response);
-            setProfileState(0);
+            setProfileUpdateMessage('Profile updated successfully');
+            setProfileUpdateState(STATUS.SUCCESS);
 
         } catch(err) {
             if(!err?.response) {
-                setUpdateErrMsg('No Server Response');
+                setProfileUpdateMessage('No Server Response');
 
             } else if (err.response?.status === 401) {
-                setUpdateErrMsg('Session expired. Redirecting to login...');
+                setProfileUpdateMessage('Session expired. Redirecting to login...');
                 navigate('/login', { state: { from: location }, replace: true})
 
             } else if(err.response?.data?.message) {
-                setUpdateErrMsg(err.response?.data?.message);
+                setProfileUpdateMessage(err.response?.data?.message);
 
             } else if(err.message) {
-                setUpdateErrMsg(err.message);
+                setProfileUpdateMessage(err.message);
                 
             } else {
-                setUpdateErrMsg('Profile update failed');
+                setProfileUpdateMessage('Profile update failed');
             }
 
-            setProfileState(2);
+            setProfileUpdateState(STATUS.ERROR);
         }
     }
 
@@ -180,13 +183,13 @@ export default function Profile() {
 
     useEffect(() => {
         if(!username.match(USERNAME_REGEX)) {
-            setUpdateErrMsg('Username can only contain a-z, 0-9 and underscore and must have 3 to 30 characters');
-            setProfileState(2);
-        } else {
-            setProfileState(profileState !== 2? profileState: 0)
-            setUpdateErrMsg('');
+            setProfileUpdateMessage('Username can only contain a-z, 0-9 and underscore and must have 3 to 30 characters');
+            setProfileUpdateState(STATUS.ERROR);
+        } else if(profileUpdateState === STATUS.ERROR || profileUpdateState === STATUS.SUCCESS) {
+            setProfileUpdateState(STATUS.INITIAL);
+            setProfileUpdateMessage('');
         }
-    }, [email, username]);
+    }, [firstName, lastName, email, username, description]);
 
     return (
         <div className="profile-parent">
@@ -293,20 +296,27 @@ export default function Profile() {
                                         />
                                     </div>
 
-                                    {{
+                                    {/* {{
                                         1:
                                         <div className={"auth-info info-color"}>
                                             <img className="rotate" src={IconLoading} alt="icon" />
-                                            <p className="auth-info-text">Registering...</p>
+                                            <p className="auth-info-text">Updating...</p>
                                         </div>,
                                         2:
                                         <div className={"auth-info error-color"}>
                                             <img src={IconError} alt="icon" />
                                             <p className="auth-info-text">{updateErrMsg}</p>
                                         </div>
-                                    }[profileState]}
+                                    }[profileState]} */}
 
-                                    <button className="profile-update-submit" disabled={profileState === 1 || !username.match(USERNAME_REGEX)} type="submit">Update</button>
+                                    {
+                                        <ProcessStatusBar
+                                            processState={profileUpdateState}
+                                            message={profileUpdateMessage}
+                                        />
+                                    }
+
+                                    <button className="profile-update-submit" disabled={profileUpdateState === STATUS.LOADING || !username.match(USERNAME_REGEX)} type="submit">Update</button>
                                 </form>
                             </div>
                         </div>

@@ -38,7 +38,7 @@ router.patch('/details', (req, res) => {
     } else if(!data.email || !data.email.match(EMAIL_REGEX)) {
         res.status(400).json({ message: 'Invalid email' });
 
-    } else if(!data.username || data.username.length < 2 || !data.username.match(USERNAME_REGEX)) {
+    } else if(!data.username || data.username.length < 3 || !data.username.match(USERNAME_REGEX)) {
         res.status(400).json({ message: 'Username can only contain a-z, 0-9 and underscore and must have 3 to 30 characters' });
 
     } else if(!data.description) {
